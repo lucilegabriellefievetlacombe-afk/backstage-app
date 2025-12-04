@@ -208,10 +208,73 @@ Backstage part of Ricardo Andrea Gonzalez Gomez [UDEMY course](https://squad.ude
 Me testing prerequisites first part [ backstagebase ](https://github.com/lucilegabriellefievetlacombe-afk/backstagebase)
 
 
+## Meet Backstage
 
-#### Custom Resource Definitions (CRDs)
+#### Tuto Program :
 
-* add CRDs with 
+* 3 Mains backstage packages :
+  * Backstage Software Catalog
+  * Backstage TechDocs
+  * Backsatge Software Templates
+* Backstage Production mode
+* Backstage on k8s
+* Final Quiz
+
+### Deploy with Docker
+
+### Github OAuth Authentication Config
+
+### Backstage Plugins
+
+### Backstage Resolvers
+
+### Test Authentication
+
+
+## Backstage Software Catalog
+
+### What is Backstage Software Catalog ?
+### External components
+### Group Enties Congig
+### Register external components into the Backstage Catalog
+
+## Backstage TechDocs
+
+### What are TechDocs ?
+### Write Code Doc with Backstage
+### Install & Configure Backstage TechDocs
+
+## Backstage Software Templates
+
+### Intro to Backstage Software Templates
+### Quick Démo
+### Install & Configure Backstage Actions
+### Integrate with GitHub
+### Create a GitHub repo for Backstage Software Templates
+### Explore parameters
+### Backstage Software Templates Steps
+### Catalog_info.yaml file
+### Deploy a tiny component
+### Tryy our previous devop project into a Backstage Software template
+### Rewrite it as Backstage Template
+### Render it
+### Configure GitHub Organizations & distrubuted builds
+### Tweak repo properties from Backstage Actions
+....
+
+
+## Backstage Production mode
+
+## Backstage on k8s
+
+## Final Quiz
+
+
+
+----------------cmd template
+#### Sample
+
+* add
 
 ```bash
 
