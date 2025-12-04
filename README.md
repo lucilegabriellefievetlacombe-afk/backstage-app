@@ -192,7 +192,6 @@ and integrate systems more effectively
 
 </details>
 
-
 <details> <summary>[Ricardo Andrea Gonzalez Gomez](https://squad.udemy.com/user/ricardo-andre-gonzalez-gomez/)</summary>
 
 * DevOps Engineer & SysAdmin.
@@ -204,8 +203,11 @@ and integrate systems more effectively
 
 ## Intro
 
+Backstage part of Ricardo Andrea Gonzalez Gomez [UDEMY course](https://squad.udemy.com/course/from-devops-to-platform-engineering-master-backstage-idps)
 
----
+Me testing prerequisites first part [ backstagebase ](https://github.com/lucilegabriellefievetlacombe-afk/backstagebase)
+
+
 
 #### Custom Resource Definitions (CRDs)
 
