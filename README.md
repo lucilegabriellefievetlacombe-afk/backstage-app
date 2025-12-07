@@ -207,7 +207,6 @@ Backstage part of Ricardo Andrea Gonzalez Gomez [UDEMY course](https://squad.ude
 
 Me testing prerequisites first part [ backstagebase ](https://github.com/lucilegabriellefievetlacombe-afk/backstagebase)
 
-
 ## Meet Backstage
 
 #### Tuto Program :
@@ -228,6 +227,8 @@ Me testing prerequisites first part [ backstagebase ](https://github.com/lucileg
 
 * we take the smallest node
 
+#### get in your wsl2 linux or your linux os
+
 #### get recent small node docker image
 
 ```bash
@@ -235,7 +236,6 @@ docker pull node:iron-alpine3.23
 ```
 
 <details> <summary>results</summary>
-
 
 ```bash result
 iron-alpine3.23: Pulling from library/node
@@ -253,10 +253,11 @@ docker.io/library/node:iron-alpine3.23
 * we get inside node:18-bookworm-slim, automatic remove (rm), interactive (it), with mount file share, work (w) in /app with bash.
 * we are in ~/home/ our project directory is backstage-app
   
-*ps: do not go inside a mounted directory shared with windows*
+*ps: do **not** go inside a mounted directory shared with **windows***
 
 ```bash
-docker run --rm -p 3000:3000 -it -v `pwd`/backstage-app:/app -w /app node:iron-alpine3.23 sh
+cd ~ # we are not in shared windows directory
+docker run --rm -p 3000:3000 -it -v `pwd`:/app -w /app node:iron-alpine3.23 sh
 ```
 
 <details> <summary>results</summary>
@@ -306,11 +307,11 @@ npm -v
 
 </details>
 
-#### get yarn 4.4.*
+#### get yarn 4.4.1
 
 ```bash
 npm install -g corepack
-yarn set version berry
+yarn set version 4.4.1
 ```
 
 <details> <summary>results</summary>
@@ -331,7 +332,7 @@ yarn --version
 <details> <summary>results</summary>
 
 ```bash result
-4.12.0
+4.4.1
 ```
 
 </details>
@@ -342,8 +343,7 @@ yarn --version
 apk add --no-cache vim curl python3 py3-pip make g++ bash
 ```
 
-###### if node version is not 20, use nvm
-
+*could try without py3-pip *
 
 ### backstage Install - inside our alpine node image
 
@@ -439,15 +439,86 @@ Creating the app...
 
 ... (coffee time)
 
-
-
 ```
 
+</details>
 
+```bash
+cd backstage; yarn start
+```
 
+<details> <summary>results</summary>
 
+*we call it backstage*
+
+```bash result
+Starting app, backend
+Loaded config from app-config.yaml
+/bin/sh: git: not found
+/bin/sh: git: not found
+NOTE: Did not compute git version or commit hash, could not execute the git command line utility
+<i> [webpack-dev-server] Project is running at:
+<i> [webpack-dev-server] Loopback: http://localhost:3000/, http://[::1]:3000/
+<i> [webpack-dev-server] On Your Network (IPv4): http://172.17.0.2:3000/
+<i> [webpack-dev-server] Content not from webpack is served from '/app/backstage/packages/app/public' directory
+<i> [webpack-dev-server] 404s will fallback to '/index.html'
+Rspack compiled successfully
+...
+2025-12-07T20:11:58.687Z search info Collating documents for techdocs succeeded documentType="techdocs"
+2025-12-07T20:11:58.782Z rootHttpRouter info [2025-12-07T20:11:58.782Z] "GET /api/catalog/entities/by-query?limit=500 HTTP/1.1" 200 0 "-" "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)" type="incomingRequest" date="2025-12-07T20:11:58.782Z" method="GET" url="/api/catalog/entities/by-query?limit=500" status=200 httpVersion="1.1" userAgent="node-fetch/1.0 (+https://github.com/bitinn/node-fetch)"
+2025-12-07T20:11:58.826Z search info Collating documents for software-catalog succeeded documentType="software-catalog"
+```
 
 </details>
+
+* http://localhost:3000/ is not accessible, we have to configure it
+* we stop it with Ctr C
+* adding app.listen.host in app-config.yaml to listen from every where
+
+```bash
+vim app.listen.host.yaml
+```
+
+```yaml
+app:
+  title: Scaffolded Backstage App
+  BaseUrl: http://loclahost:3000
+  listen:
+    host: 0.0.0.0
+...
+```
+
+```bash
+yarn start
+```
+
+* http://localhost:3000/ is accessible :)
+* but if we try to enter we have an error message
+
+```html
+Error
+You cannot sign in as a guest, you must either enable the legacy guest token or configure the auth backend to support guest sign in.
+Call Stack
+ handle
+  node_modules/@backstage/core-components/dist/layout/SignInPage/guestProvider.esm.js:68:13
+```
+
+* we need a token
+* we save our container image to continue the tuto later
+
+```bash
+docker container ls # we take our container id with ports 3000
+docker commit 7f7156a45af2 backstage:v0
+```
+
+* next time we will use the v0
+* we can have to term with exec command
+
+```bash
+docker run --rm -p 3000:3000 -it -v `pwd`:/app -w /app backstage:v0 sh
+docker container ls # we take our container id with ports 3000
+docker exec -it 8c0b8d5fd52c bash
+```
 
 ### Github OAuth Authentication Config
 
