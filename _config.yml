@@ -113,7 +113,7 @@ edit_page_button: true
 navbar-var-length: false
 
 # The keywords to associate with your website, for SEO purposes
-keywords: "DevOps,GitOps,DevSecOps,Gitlab,Github,Gitea,Ansible,Backstage,Helm,ArgoCD,k8s,Kube,Kubernetes,Docker,CoCo,Django,Symfony,Spring,Vue,Agular,React,Postgres,MongoDB,,Kafka,Celery,SonarQue,Checkmarx,Linux,Alpine,Debian,Ubuntu,Redhat,CentOs"
+keywords: "DevOps,GitOps,DevSecOps,Gitlab,Github,Gitea,Ansible,Backstage,Helm,ArgoCD,k8s,Kube,Kubernetes,Docker,CoCo,Django,Symfony,Spring,Vue,Agular,React,Postgres,MongoDB,,Kafka,Celery,SonarQue,Checkx,Linux,Alpine,Debian,Ubuntu,Redhat,CentOs"
 
 ######################################
 # --- Colours / background image --- #
@@ -246,7 +246,7 @@ date_format: "%A %d %B %Y"
 
 # Output options (more information on Jekyll's site)
 timezone: "Europe/Paris"
-markdown: kramdown
+markdown: GFM
 highlighter: rouge
 permalink: /:year-:month-:day-:title/
 paginate: 5
