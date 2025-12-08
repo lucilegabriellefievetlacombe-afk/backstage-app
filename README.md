@@ -1,3 +1,10 @@
+---
+title: My Page
+project_name: MyCoolProject
+---
+
+# Welcome to {{ page.project_name }}
+
 # Learn Platform Engineering with Backstage
 
 *Using Kubernetes, ArgoCD, Docker, GitOps, Helm, GitHub Actions & CI/CD to build IDPs*
@@ -221,15 +228,21 @@ Me testing prerequisites first part [ backstagebase ](https://github.com/lucileg
 
 ### Deploy with Docker
 
-* add docker images, node:XX-bookworm-slim
+*slide 64. Deploy Backstage using Docker II* 
+
+* add docker images, node:18-bookworm-slim
 * https://hub.docker.com/_/node/
 * https://hub.docker.com/_/node/tags?name=alpine&page=2 node:iron-alpine3.23 45.68 MB
 
-* we take the smallest node
+*I don't have a powerfull PC, so I take the smallest alpine node image. Tacking the one proposed by Backstage documentation and Ricardo course it certainly safer.*
 
 #### get in your wsl2 linux or your linux os
 
-#### get recent small node docker image
+*Be carrefull to not get in a shared/linked/mounted directory with wsl2.*
+It is practical to share source directory to edit them directly with windows IDE. But this method induce big perfomance issues.
+See Slide 63. Perfomance issues on Windows with Docker Voulumes.
+
+#### get recent smallest node docker image
 
 ```bash
 docker pull node:iron-alpine3.23
@@ -471,7 +484,8 @@ Rspack compiled successfully
 
 </details>
 
-* http://localhost:3000/ is not accessible, we have to configure it
+* http://localhost:3000/ is not accessible on the host, we have to configure it
+* the end point is only available inside the container
 * we stop it with Ctr C
 * adding app.listen.host in app-config.yaml to listen from every where
 
@@ -522,55 +536,226 @@ docker exec -it 8c0b8d5fd52c bash
 
 ### Github OAuth Authentication Config
 
+*Slide 65. Configure GitHub OAuth authentication - I*
+
+```bash
+docker run --rm -it -p 3000:3000 -p 7007:7007 -v `pwd`:/app -w /app backstage:v0
+```
+
+
+```bash
+vim 
+```
+
 ### Backstage Plugins
+
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+</details>
 
 ### Backstage Resolvers
 
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+</details>
+
 ### Test Authentication
 
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+</details>
 
 ## Backstage Software Catalog
 
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+</details>
+
 ### What is Backstage Software Catalog ?
+
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+</details>
+
 ### External components
+
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+</details>
+
 ### Group Enties Congig
+
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+</details>
+
 ### Register external components into the Backstage Catalog
+
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+</details>
 
 ## Backstage TechDocs
 
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+</details>
+
 ### What are TechDocs ?
+
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+</details>
+
 ### Write Code Doc with Backstage
+
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+</details>
+
 ### Install & Configure Backstage TechDocs
+
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+</details>
 
 ## Backstage Software Templates
 
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+</details>
+
 ### Intro to Backstage Software Templates
+
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+</details>
+
 ### Quick Démo
+
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+</details>
+
 ### Install & Configure Backstage Actions
+
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+</details>
+
 ### Integrate with GitHub
-### Create a GitHub repo for Backstage Software Templates
-### Explore parameters
-### Backstage Software Templates Steps
-### Catalog_info.yaml file
-### Deploy a tiny component
-### Tryy our previous devop project into a Backstage Software template
-### Rewrite it as Backstage Template
-### Render it
-### Configure GitHub Organizations & distrubuted builds
-### Tweak repo properties from Backstage Actions
-....
-
-
-## Backstage Production mode
-
-## Backstage on k8s
-
-## Final Quiz
-
-
-
-----------------cmd template
-#### Sample
 
 * add
 
@@ -582,7 +767,191 @@ docker exec -it 8c0b8d5fd52c bash
 
 
 ```bash result
+```
+</details>
+
+### Create a GitHub repo for Backstage Software Templates
+
+* add
+
+```bash
 
 ```
 
+<details> <summary>results</summary>
+
+```bash result
+```
+
+</details>
+
+### Explore parameters
+
+* add
+
+```bash
+
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+
+</details>
+
+### Backstage Software Templates Steps
+
+* add
+
+```bash
+
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+
+</details>
+
+### Catalog_info.yaml file
+
+* add
+
+```bash
+
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+
+</details>
+
+### Deploy a tiny component
+
+* add
+
+```bash
+
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+
+</details>
+
+### Try our previous devop project into a Backstage Software template
+
+* add
+
+```bash
+
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+
+</details>
+
+### Rewrite it as Backstage Template
+
+* add
+
+```bash
+
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+
+</details>
+
+### Render it
+
+* add
+
+```bash
+
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+
+</details>
+
+### Configure GitHub Organizations & distrubuted builds
+
+* add
+
+```bash
+
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+
+</details>
+
+### Tweak repo properties from Backstage Actions
+
+....
+
+* add
+
+```bash
+
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
+
+</details>
+
+## Backstage Production mode
+
+* add
+
+```bash
+
+```
+
+<details> <summary>results</summary>
+
+```bash result
+
+```
+
+</details>
+
+## Backstage on k8s
+
+## Final Quiz
+
+----------------cmd template
+#### Sample
+
+* add
+
+```bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+```
 </details>
