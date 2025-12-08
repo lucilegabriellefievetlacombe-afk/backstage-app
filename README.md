@@ -1,14 +1,3 @@
----
-title: My Page
-project_name: MyCoolProject
----
-
-# Welcome to {{ page.project_name }}
-
-
-{% assign base_url = "https://github.com/example/repo" %}
-[Home]({{ base_url }})
-
 # Learn Platform Engineering with Backstage
 
 *Using Kubernetes, ArgoCD, Docker, GitOps, Helm, GitHub Actions & CI/CD to build IDPs*
