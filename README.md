@@ -560,6 +560,51 @@ auth:
 
 <img width="503" height="732" alt="image" src="https://github.com/user-attachments/assets/55253d7a-68b6-4380-9450-f03591a20044" />
 
+* exit your container, get back in your wsl2 or linux host term 
+* create a .env with AUTH_GITHUB_CLIENT ID and secret
+
+```bash
+vim .env
+```
+
+```yaml
+#https://github.com/settings/applications/3279413
+#OAuth user tokens
+AUTH_GITHUB_CLIENT_ID=yourMagnificClientIDofGithub 
+AUTH_GITHUB_CLIENT_SECRET=yourmagnificsecretforyourgithubclientid
+```
+
+* source your .env
+
+```bash
+source .env
+```
+
+* you have the environment variable available in your host terminal
+
+```bash
+echo $AUTH_GITHUB_CLIENT_ID $AUTH_GITHUB_CLIENT_SECRET
+```
+
+* run the container again with OAuth environment variables
+
+```bash
+docker run --rm -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRE
+T -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app backstage:v0 bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+c18aac944191:/app# echo $AUTH_GITHUB_CLIENT_ID
+yourMagnificClientIDofGithub
+c18aac944191:/app# echo $AUTH_GITHUB_CLIENT_SECRET
+yourmagnificsecretforyourgithubclientid
+c18aac944191:/app#
+```
+</details>
+
+* your env vars are passed inside the container env
 
 ### Backstage Plugins
 
