@@ -678,9 +678,28 @@ const app = createApp({
 
 ### Backstage Resolvers
 
-* add
+*Slide 69. Backstage resolver*
+
+* white liste of user
+* create users in backstage
+* packages/catalog-model/examples/acme/team-a-group.yaml
+* add user https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme/team-a-group.yaml
 
 ```bash
+vim .... team-a-group.yaml
+```
+
+```yaml
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: breanna.davison
+spec:
+  profile:
+    # Intentional no displayName for testing
+    email: breanna-davison@example.com
+    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=Luna&backgroundColor=transparent
+  memberOf: [team-a]
 ```
 
 <details> <summary>results</summary>
