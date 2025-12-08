@@ -531,14 +531,35 @@ docker exec -it 8c0b8d5fd52c bash
 
 *Slide 65. Configure GitHub OAuth authentication - I*
 
+* we expose the backend 7007:7007 ports
+
 ```bash
 docker run --rm -it -p 3000:3000 -p 7007:7007 -v `pwd`:/app -w /app backstage:v0
 ```
 
+* what authentication methode we will use ?
+* We check the configuration file, we look at auth section
 
 ```bash
-vim 
+vim backstage/app-config.yaml
 ```
+
+```yaml app-config.yaml line 66
+auth:
+  # see https://backstage.io/docs/auth/ to learn about auth providers
+  providers:
+    # See https://backstage.io/docs/auth/guest/provider
+    guest: {}
+```
+
+* we go to see https://backstage.io/docs/auth/
+* we don't want the guest method, we want one with a real authentication methode
+* we take the [github auth](https://backstage.io/docs/auth/github/provider#create-an-oauth-app-on-github)
+   * we will create the OAuth App
+   * we go in the [developer settings](https://github.com/settings/developers)
+
+<img width="503" height="732" alt="image" src="https://github.com/user-attachments/assets/55253d7a-68b6-4380-9450-f03591a20044" />
+
 
 ### Backstage Plugins
 
