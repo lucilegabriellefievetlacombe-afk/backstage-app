@@ -608,16 +608,73 @@ c18aac944191:/app#
 
 ### Backstage Plugins
 
-* add
+*Slide 67.Dowload Backstage pluglins*
+
+* add [github provider](https://backstage.io/docs/auth/github/provider/]
 
 ```bash
+yarn --cwd packages/backend add @backstage/plugin-auth-backend-module-github-provider
 ```
 
 <details> <summary>results</summary>
 
 ```bash result
+➤ YN0000: · Yarn 4.4.1
+➤ YN0000: ┌ Resolution step
+➤ YN0000: └ Completed in 1s 954ms
+➤ YN0000: ┌ Post-resolution validation
+➤ YN0060: │ @testing-library/react is listed by your project with version 14.3.1 (pc9eb9), which doesn't satisfy what @backstage/test-utils requests (^16.0.0).
+➤ YN0060: │ react is listed by your project with version 18.3.1 (pd98da), which doesn't satisfy what @material-ui/core and other dependencies request (but they have non-overlapping ranges!).
+➤ YN0060: │ react-dom is listed by your project with version 18.3.1 (pfa800), which doesn't satisfy what @material-ui/core and other dependencies request (but they have non-overlapping ranges!).
+➤ YN0002: │ app@workspace:packages/app doesn't provide @types/react (pceee1), requested by @backstage/app-defaults and other dependencies.
+➤ YN0002: │ app@workspace:packages/app doesn't provide webpack (p299d9), requested by @backstage/cli.
+➤ YN0002: │ backend@workspace:packages/backend doesn't provide webpack (p00f29), requested by @backstage/cli.
+➤ YN0002: │ root@workspace:. doesn't provide webpack (p40c38), requested by @backstage/cli.
+➤ YN0086: │ Some peer dependencies are incorrectly met by your project; run yarn explain peer-requirements <hash> for details, where <hash> is the six-letter p-prefixed code.
+➤ YN0086: │ Some peer dependencies are incorrectly met by dependencies; run yarn explain peer-requirements for details.
+➤ YN0000: └ Completed
+➤ YN0000: ┌ Fetch step
+➤ YN0000: └ Completed in 8s 173ms
+➤ YN0000: ┌ Link step
+➤ YN0000: └ Completed in 3s 892ms
+➤ YN0000: · Done with warnings in 14s 885ms
 ```
 </details>
+
+* frontend part [sign-in configuration](https://backstage.io/docs/auth/#sign-in-configuration)
+
+```
+vim packages/app/src/App.tsx
+```
+
+```javascript
+// line 28
+import { githubAuthApiRef } from '@backstage/core-plugin-api';
+import {
+   AlertDisplay,
+   OAuthRequestDialog,
+   SignInPage
+} from '@backstage/core-components';
+...
+// line 61
+const app = createApp({
+  components: {
+    SignInPage: props => (
+      <SignInPage
+        {...props}
+        auto
+        provider={{
+          id: 'github-auth-provider',
+          title: 'GitHub',
+          message: 'Sign in using GitHub',
+          apiRef: githubAuthApiRef,
+        }}
+      />
+    ),
+  },
+  // ..
+});
+```
 
 ### Backstage Resolvers
 
