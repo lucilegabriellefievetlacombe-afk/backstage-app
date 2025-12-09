@@ -812,7 +812,7 @@ catalog:
 
 *Slide 70. Test the Backsatge authentication*
 
-* recap
+#### recap
 * we followed doc,
    * we created a OAuth App on github with our local url and ports
    * we added authentication for ou client 
@@ -822,7 +822,14 @@ catalog:
    * we made the changes for the user resolver - we wanted to match the name
    * we added the users catalog and configured it in the local config
 
- 
+### Test
+
+```bash
+cd /app/backstage/
+yarn start
+```
+
+*yarn dev is deprecated*
 
 <details> <summary>results</summary>
 
