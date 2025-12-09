@@ -680,25 +680,27 @@ const app = createApp({
 
 *Slide 69. Backstage resolver*
 
-* white liste of user
+* We need white liste of user
 * create users in backstage
 * packages/catalog-model/examples/acme/team-a-group.yaml
 * add user https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme/team-a-group.yaml
 
 ```bash
-vim .... team-a-group.yaml
+cd /app/backstage/
+mkdir -p catalog/entities
+vim catalog/entities/users.yaml
 ```
 
 ```yaml
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
-  name: breanna.davison
+  name: ${your_login_in_github}
 spec:
   profile:
     # Intentional no displayName for testing
-    email: breanna-davison@example.com
-    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=Luna&backgroundColor=transparent
+    email: ${your_email_used_in_github}
+    picture: https://gravatar.com/facealways0c1cc78340
   memberOf: [team-a]
 ```
 
