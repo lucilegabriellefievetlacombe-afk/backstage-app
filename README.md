@@ -586,7 +586,7 @@ auth:
         signIn:
           resolvers:
             # See https://backstage.io/docs/auth/github/provider#resolvers for more resolvers
-            - resolver: luspokvenus
+            - resolver: usernameMatchingUserEntityName
 ```
 
 * we go to see https://backstage.io/docs/auth/
