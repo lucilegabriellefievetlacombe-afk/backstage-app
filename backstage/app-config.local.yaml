@@ -1,7 +1,7 @@
 # Backstage override configuration for your local development environment
 #
 app:
-  title: Scaffolded Backstage App
+  title: Scaffolded Backstage Local App
   baseUrl: http://localhost:3000
   listen:
     hots: 0.0.0.0
