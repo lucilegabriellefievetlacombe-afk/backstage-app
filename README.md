@@ -643,8 +643,6 @@ c18aac944191:/app#
 
 * your env vars are passed inside the container env
 
-
-
 ### Backstage Plugins
 
 *Slide 67.Dowload Backstage pluglins*
@@ -812,7 +810,19 @@ catalog:
 
 * we have created our white list, and configure backsatge to use it
 
+*Slide 70. Test the Backsatge authentication*
 
+* recap
+* we followed doc,
+   * we created a OAuth App on github with our local url and ports
+   * we added authentication for ou client 
+   * we modify our local conf to uses them as env vars to the container
+   * we dowloaded the plugin insid our container
+   * we add the plugin to the back end and then to the front end
+   * we made the changes for the user resolver - we wanted to match the name
+   * we added the users catalog and configured it in the local config
+
+ 
 
 <details> <summary>results</summary>
 
