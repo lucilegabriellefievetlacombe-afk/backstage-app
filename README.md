@@ -586,7 +586,7 @@ auth:
         signIn:
           resolvers:
             # See https://backstage.io/docs/auth/github/provider#resolvers for more resolvers
-            - resolver: luspokvenus
+            - resolver: usernameMatchingUserEntityName
 ```
 
 * we go to see https://backstage.io/docs/auth/
@@ -740,7 +740,7 @@ const app = createApp({
 * We need white liste of user
 * create users in backstage
 * packages/catalog-model/examples/acme/team-a-group.yaml
-* add user https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme/team-a-group.yaml
+* [add user sample](https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme/team-a-group.yaml)
 
 ```bash
 cd /app/backstage/
@@ -748,7 +748,7 @@ mkdir -p catalog/entities
 vim catalog/entities/users.yaml
 ```
 
-```yaml
+```yaml catalog/entities/users.yaml
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
@@ -760,6 +760,59 @@ spec:
     picture: https://gravatar.com/facealways0c1cc78340
   memberOf: [team-a]
 ```
+
+*only me can login (from github)*
+  
+* how do backstage got the white lits ?
+* we add an extra config, to tell backstage to use our [users](backstage/catalog/entities/users.yaml) file
+
+```bash
+vim app-config.yaml
+```
+
+* look for catalog section (line 68)
+
+```yaml  app-config.yaml line 68
+catalog:
+  import:
+    entityFilename: catalog-info.yaml
+    pullRequestBranchName: backstage-integration
+  rules:
+    - allow:
+        - Component
+        - API
+        - Resource
+        - System
+        - Domain
+        - Location
+  locations:
+    - type: file
+      target: /app/backstage/catalog/entities/users.yaml
+```
+
+* copy and past in our local configuration 
+* clean not usefull import and rules
+* Add User rule
+* set our target file
+
+```yaml  app-config.local.yaml line 29
+catalog:
+  rules:
+    - allow:
+        - User
+        - Component
+        - API
+        - Resource
+        - System
+        - Location
+  locations:
+    - type: file
+      target: /app/backstage/catalog/entities/users.yaml
+```
+
+* we have created our white list, and configure backsatge to use it
+
+
 
 <details> <summary>results</summary>
 
