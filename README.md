@@ -680,6 +680,21 @@ yarn --cwd packages/backend add @backstage/plugin-auth-backend-module-github-pro
 ```
 </details>
 
+* edit [backend type script](backstage/packages/backend/src/index.ts)
+* [doc](https://github.com/backstage/backstage/blob/master/docs/auth/github/provider.md#backend-installation)
+
+```bash
+vim backstage/packages/backend/src/index.ts
+```
+
+```typescript backstage/packages/backend/src/index.ts line 26
+// auth plugin
+backend.add(import('@backstage/plugin-auth-backend'));
+// See https://backstage.io/docs/backend-system/building-backends/migrating#the-auth-plugin
+backend.add(import('@backstage/plugin-auth-backend-module-github-provider'));
+// backend.add(import('@backstage/plugin-auth-backend-module-guest-provider'));
+// See https://backstage.io/docs/auth/guest/provider
+```
 
 
 * frontend part [sign-in configuration](https://backstage.io/docs/auth/#sign-in-configuration)
