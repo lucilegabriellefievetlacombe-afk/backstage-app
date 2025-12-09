@@ -23,4 +23,18 @@ auth:
         signIn:
           resolvers:
             # See https://backstage.io/docs/auth/github/provider#resolvers for more resolvers
-            - resolver: luspokvenus
+            - resolver: usernameMatchingUserEntityName            
+            # - resolver: [ emailMatchingUserEntityProfileEmail | emailLocalPartMatchingUserEntityName | usernameMatchingUserEntityName ]
+
+catalog:
+  rules:
+    - allow:
+        - User
+        - Component
+        - Resource
+        - System
+        - API
+        - Location
+  locations:
+    - type: file
+      target: /app/backstage/catalog/entities/users.yaml
