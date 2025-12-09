@@ -552,6 +552,43 @@ auth:
     guest: {}
 ```
 
+* move local host configuration with auth in [local configuration](backstage/app-config.local.yaml)
+* clean general configuration [general configuration](backstage/app-config.yaml)
+* add authentication backend provider configuration
+
+```bash
+vim backstage/app-config.local.yaml
+```
+
+```yaml app-config.local.yaml
+# Backstage override configuration for your local development environment
+#
+app:
+  title: Scaffolded Backstage App
+  baseUrl: http://localhost:3000
+  listen:
+    hots: 0.0.0.0
+organization:
+  name: luspokvenus
+
+auth:
+  environment: development
+  providers:
+    github:
+      development:
+        clientId: ${AUTH_GITHUB_CLIENT_ID}
+        clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+        ## uncomment if using GitHub Enterprise
+        # enterpriseInstanceUrl: ${AUTH_GITHUB_ENTERPRISE_INSTANCE_URL}
+        ## uncomment to set lifespan of user session
+        # sessionDuration: { hours: 24 } # supports `ms` library format (e.g. '24h', '2 days'),
+        # ISO duration, "human duration" as used in code
+        signIn:
+          resolvers:
+            # See https://backstage.io/docs/auth/github/provider#resolvers for more resolvers
+            - resolver: luspokvenus
+```
+
 * we go to see https://backstage.io/docs/auth/
 * we don't want the guest method, we want one with a real authentication methode
 * we take the [github auth](https://backstage.io/docs/auth/github/provider#create-an-oauth-app-on-github)
@@ -606,6 +643,8 @@ c18aac944191:/app#
 
 * your env vars are passed inside the container env
 
+
+
 ### Backstage Plugins
 
 *Slide 67.Dowload Backstage pluglins*
@@ -641,42 +680,7 @@ yarn --cwd packages/backend add @backstage/plugin-auth-backend-module-github-pro
 ```
 </details>
 
-* move local host configuration with auth in [local configuration](backstage/app-config.local.yaml)
-* clean general configuration [general configuration](backstage/app-config.yaml)
-* add authentication backend provider configuration
 
-```bash
-vim backstage/app-config.local.yaml
-```
-
-```yaml app-config.local.yaml
-# Backstage override configuration for your local development environment
-#
-app:
-  title: Scaffolded Backstage App
-  baseUrl: http://localhost:3000
-  listen:
-    hots: 0.0.0.0
-organization:
-  name: luspokvenus
-
-auth:
-  environment: development
-  providers:
-    github:
-      development:
-        clientId: ${AUTH_GITHUB_CLIENT_ID}
-        clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
-        ## uncomment if using GitHub Enterprise
-        # enterpriseInstanceUrl: ${AUTH_GITHUB_ENTERPRISE_INSTANCE_URL}
-        ## uncomment to set lifespan of user session
-        # sessionDuration: { hours: 24 } # supports `ms` library format (e.g. '24h', '2 days'),
-        # ISO duration, "human duration" as used in code
-        signIn:
-          resolvers:
-            # See https://backstage.io/docs/auth/github/provider#resolvers for more resolvers
-            - resolver: luspokvenus
-```
 
 * frontend part [sign-in configuration](https://backstage.io/docs/auth/#sign-in-configuration)
 
