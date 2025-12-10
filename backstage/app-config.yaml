@@ -1,6 +1,8 @@
 app:
   title: Scaffolded Backstage App
   baseUrl: http://localhost:3000
+  listen:
+    hots: 0.0.0.0
 
 organization:
   name: luspokvenus
@@ -65,13 +67,27 @@ techdocs:
 scaffolder:
   # see https://backstage.io/docs/features/software-templates/configuration for software template options
 
+auth:
+  environment: development
+  providers:
+    github:
+      development:
+        clientId: ${AUTH_GITHUB_CLIENT_ID}
+        clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+        signIn:
+          resolvers:
+            - resolver: usernameMatchingUserEntityName
+
 catalog:
   import:
     entityFilename: catalog-info.yaml
     pullRequestBranchName: backstage-integration
   rules:
-    - allow: [Component, System, API, Resource, Location]
+    - allow: [User, Component, System, API, Resource, Location]
   locations:
+    - type: file
+      target: /app/backstage/catalog/entities/users.yaml
+
     # Local example data, file locations are relative to the backend process, typically `packages/backend`
     - type: file
       target: ../../examples/entities.yaml
