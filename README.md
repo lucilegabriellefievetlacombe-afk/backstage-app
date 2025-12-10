@@ -346,7 +346,7 @@ yarn --version
 * adding vim, curl, python3, py3-pip, make, g++ and bash
 
 ```bash
-apk add --no-cache vim curl python3 py3-pip make g++ bash
+apk add --no-cache vim curl python3 py3-pip make g++ bash github-cli
 ```
 
 *could try without py3-pip *
