@@ -833,14 +833,58 @@ yarn start
 <details> <summary>results</summary>
 
 ```bash result
+lucile@ubuntu-manager:~/backstage-app$ source .env; docker run --rm -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app backstage:v0 bash
+7bacffbb16db:/app# $AUTH_GITHUB_CLIENT_ID
+bash: Ov23liBK1L8HtSe0U0bp: command not found
+7bacffbb16db:/app# apk add --no-cache vim curl python3 py3-pip make g++ bash github-cli
+(1/4) Installing pcre2 (10.47-r0)
+(2/4) Installing git (2.52.0-r0)
+(3/4) Installing git-init-template (2.52.0-r0)
+(4/4) Installing github-cli (2.83.0-r1)
+Executing busybox-1.37.0-r29.trigger
+OK: 421 MiB in 72 packages
+7bacffbb16db:/app# cd backstage/
+7bacffbb16db:/app/backstage# yarn start
+Starting app, backend
+Loaded config from app-config.yaml, app-config.local.yaml
+fatal: detected dubious ownership in repository at '/app'
+To add an exception for this directory, call:
+
+        git config --global --add safe.directory /app
+fatal: detected dubious ownership in repository at '/app'
+To add an exception for this directory, call:
+
+        git config --global --add safe.directory /app
+NOTE: Did not compute git version or commit hash, could not execute the git command line utility
+<i> [webpack-dev-server] Project is running at:
+<i> [webpack-dev-server] Loopback: http://localhost:3000/, http://[::1]:3000/
+<i> [webpack-dev-server] On Your Network (IPv4): http://172.17.0.2:3000/
+<i> [webpack-dev-server] Content not from webpack is served from '/app/backstage/packages/app/public' directory
+<i> [webpack-dev-server] 404s will fallback to '/index.html'
+Rspack compiled successfully
+Loading config from MergedConfigSource{FileConfigSource{path="/app/backstage/app-config.yaml"}, FileConfigSource{path="/app/backstage/app-config.local.yaml"}, EnvConfigSource{count=0}}
+2025-12-10T16:40:34.677Z backstage info Found 2 new secrets in config that will be redacted
+2025-12-10T16:40:34.754Z rootHttpRouter info Listening on 0.0.0.0:7007
+2025-12-10T16:40:34.758Z backstage info Plugin initialization started: 'app', 'proxy', 'scaffolder', 'techdocs', 'auth', 'catalog', 'permission', 'search', 'kubernetes', 'notifications', 'signals' type="initialization"
 ```
+
+<img width="1892" height="781" alt="image" src="https://github.com/user-attachments/assets/0ca6a2fb-eb21-4afe-806b-4edb59a2ce79" />
+
 </details>
 
 ### Test Authentication
 
-* add
+<img width="883" height="403" alt="image" src="https://github.com/user-attachments/assets/ad12c518-90cc-420d-b59c-305671a6c65d" />
+<img width="883" height="403" alt="image" src="https://github.com/user-attachments/assets/363acbe5-ead7-4335-8b3d-7ca3f9ce75e2" />
+<img width="992" height="1002" alt="image" src="https://github.com/user-attachments/assets/09bb0fe7-3aed-4149-b18e-81335cf7e644" />
+
+<img width="881" height="641" alt="image" src="https://github.com/user-attachments/assets/26ad0471-770a-47fc-a5d3-12730e603518" />
+<img width="892" height="623" alt="image" src="https://github.com/user-attachments/assets/bfc69309-8dc8-47aa-993c-9d853f515654" />
+
 
 ```bash
+
+
 ```
 
 <details> <summary>results</summary>
@@ -848,6 +892,11 @@ yarn start
 ```bash result
 ```
 </details>
+
+```bash
+docker ps
+docker commit 7bacffbb16db backstage:v1
+```
 
 ## Backstage Software Catalog
 
