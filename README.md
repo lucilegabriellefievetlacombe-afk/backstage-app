@@ -346,7 +346,7 @@ yarn --version
 * adding vim, curl, python3, py3-pip, make, g++ and bash
 
 ```bash
-apk add --no-cache vim curl python3 py3-pip make g++ bash
+apk add --no-cache vim curl python3 py3-pip make g++ bash github-cli
 ```
 
 *could try without py3-pip *
@@ -626,8 +626,7 @@ echo $AUTH_GITHUB_CLIENT_ID $AUTH_GITHUB_CLIENT_SECRET
 * run the container again with OAuth environment variables
 
 ```bash
-docker run --rm -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRE
-T -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app backstage:v0 bash
+docker run --rm -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app backstage:v0 bash
 ```
 
 <details> <summary>results</summary>
@@ -642,8 +641,6 @@ c18aac944191:/app#
 </details>
 
 * your env vars are passed inside the container env
-
-
 
 ### Backstage Plugins
 
@@ -812,7 +809,26 @@ catalog:
 
 * we have created our white list, and configure backsatge to use it
 
+*Slide 70. Test the Backsatge authentication*
 
+#### recap
+* we followed doc,
+   * we created a OAuth App on github with our local url and ports
+   * we added authentication for ou client 
+   * we modify our local conf to uses them as env vars to the container
+   * we dowloaded the plugin insid our container
+   * we add the plugin to the back end and then to the front end
+   * we made the changes for the user resolver - we wanted to match the name
+   * we added the users catalog and configured it in the local config
+
+### Test
+
+```bash
+cd /app/backstage/
+yarn start
+```
+
+*yarn dev is deprecated*
 
 <details> <summary>results</summary>
 
