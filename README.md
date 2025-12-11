@@ -898,16 +898,41 @@ docker ps
 docker commit 7bacffbb16db backstage:v1
 ```
 
+
+
 ## Backstage Software Catalog
 
 * add
 
 ```bash
+docker run --rm -it -p 3000:3000 -p 7007:7007 -v `pwd`/backstage-app:/app -w /app backstage:v1 bash
+yarn start --config `pwd`/app-config.local.yaml
 ```
 
 <details> <summary>results</summary>
 
 ```bash result
+Starting app, backend
+Loaded config from app-config.local.yaml
+fatal: detected dubious ownership in repository at '/app'
+To add an exception for this directory, call:
+
+        git config --global --add safe.directory /app
+fatal: detected dubious ownership in repository at '/app'
+To add an exception for this directory, call:
+
+        git config --global --add safe.directory /app
+NOTE: Did not compute git version or commit hash, could not execute the git command line utility
+<i> [webpack-dev-server] Project is running at:
+<i> [webpack-dev-server] Loopback: http://localhost:3000/, http://[::1]:3000/
+<i> [webpack-dev-server] On Your Network (IPv4): http://172.17.0.2:3000/
+<i> [webpack-dev-server] Content not from webpack is served from '/app/backstage/packages/app/public' directory
+<i> [webpack-dev-server] 404s will fallback to '/index.html'
+Rspack compiled successfully
+Loading config from MergedConfigSource{FileConfigSource{path="/app/backstage/app-config.local.yaml"}, EnvConfigSource{count=0}}
+2025-12-11T11:16:38.340Z backstage info Found 2 new secrets in config that will be redacted
+2025-12-11T11:16:38.430Z rootHttpRouter info Listening on 0.0.0.0:7007
+2025-12-11T11:16:38.436Z backstage info Plugin initialization started: 'app', 'proxy', 'scaffolder', 'techdocs', 'auth', 'catalog', 'permission', 'search', 'kubernetes', 'notifications', 'signals' type="initialization"
 ```
 </details>
 
