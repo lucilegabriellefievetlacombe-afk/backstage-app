@@ -908,6 +908,7 @@ docker commit 7bacffbb16db backstage:v1
 cd backstage-app
 source .env
 docker run --rm -it -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -p 3000:3000 -p 7007:7007 -v `pwd`:/app -w /app backstage:v1 bash
+cd backstage
 yarn start --config `pwd`/app-config.local.yaml
 ```
 
