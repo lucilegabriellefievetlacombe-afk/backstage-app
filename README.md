@@ -733,7 +733,6 @@ const app = createApp({
 
 *Slide 69. Backstage resolver*
 
-
 * We need white liste of user
 * create users in backstage
 * packages/catalog-model/examples/acme/team-a-group.yaml
@@ -809,6 +808,8 @@ catalog:
 
 * we have created our white list, and configure backsatge to use it
 
+*for me merge is not ok, so I did a complete and distinct app-config.local.yaml, with all sections*
+
 *Slide 70. Test the Backsatge authentication*
 
 #### recap
@@ -825,7 +826,7 @@ catalog:
 
 ```bash
 cd /app/backstage/
-yarn start
+yarn start --config `pwd`/app-config.local.yaml
 ```
 
 *yarn dev is deprecated*
@@ -833,7 +834,7 @@ yarn start
 <details> <summary>results</summary>
 
 ```bash result
-lucile@ubuntu-manager:~/backstage-app$ source .env; docker run --rm -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app backstage:v0 bash
+source .env; docker run --rm -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app backstage:v0 bash
 7bacffbb16db:/app# $AUTH_GITHUB_CLIENT_ID
 bash: Ov23liBK1L8HtSe0U0bp: command not found
 7bacffbb16db:/app# apk add --no-cache vim curl python3 py3-pip make g++ bash github-cli
@@ -881,28 +882,16 @@ Loading config from MergedConfigSource{FileConfigSource{path="/app/backstage/app
 <img width="881" height="641" alt="image" src="https://github.com/user-attachments/assets/26ad0471-770a-47fc-a5d3-12730e603518" />
 <img width="892" height="623" alt="image" src="https://github.com/user-attachments/assets/bfc69309-8dc8-47aa-993c-9d853f515654" />
 
-
-```bash
-
-
-```
-
-<details> <summary>results</summary>
-
-```bash result
-```
-</details>
+* keep as new image
 
 ```bash
 docker ps
 docker commit 7bacffbb16db backstage:v1
 ```
 
-
-
 ## Backstage Software Catalog
 
-* add
+* Restart new backstage image with local configuration only
 
 ```bash
 cd backstage-app
@@ -941,22 +930,114 @@ Loading config from MergedConfigSource{FileConfigSource{path="/app/backstage/app
 
 ### What is Backstage Software Catalog ?
 
-* add
+* The Catalog is on the home page 
 
-```bash
-```
+<img width="908" height="617" alt="image" src="https://github.com/user-attachments/assets/597865c9-858d-4bbd-bd0c-0b52dfcb131c" />
 
-<details> <summary>results</summary>
 
-```bash result
-```
-</details>
+* [backstage software catalog doc](https://backstage.io/docs/features/software-catalog/)
+
+The Backstage Software Catalog is a centralized system that keeps track of ownership and metadata for all the software in your ecosystem (services, websites, libraries, data pipelines, etc). The catalog is built around the concept of metadata YAML files stored together with the code, which are then harvested and visualized in Backstage.
+
+*Slide 71. What is backsatge catalog ?*
 
 ### External components
 
-* add
+* [backstage doc on external integration](https://backstage.io/docs/features/software-catalog/external-integrations)
+
+*Slide 72. Can you registers existant components into Backstage ?*
+
+* add the catalog info for your component, example for our python-app :
+  * https://github.com/your-own-github-account/pyhon-app.git/catalog-info.yaml 
+
+```yaml
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: python-app
+  description: Python app that displays gretings.
+  annotations:
+    github.com/project-slug: your-own-github-account/pyhon-app
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: service
+  owner: dev-team
+  lifecycle: experimental
+```
+
+*we set a group as owner, let's say **dev-team***
+
+### Group Enties Config
+
+We will add the group **dev-team** inside the container.
+
+* get in the container
 
 ```bash
+docker ps
+docker exec -it theidofthebackstagecontainer bash
+```
+
+* add and edit a backstage catalog groups entity
+* [acme doc sample](https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme/backstage-group.yaml)
+
+```bash 
+vim backstage/catalog/entities/groups.yaml
+```
+
+* we call it dev-team
+* we keep children
+* we remove parent
+* change icon, mail and description
+
+```yaml catalog/entities/groups.yaml
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: dev-team
+  description: Team for developers
+spec:
+  type: team
+  profile:
+    email: ${your_email_used_in_github}
+    picture: https://0.gravatar.com/userimage/273238023/d8c1653a7bee11bb7b21dc09624e8221?size=256
+  children: []
+```
+
+* edit user.yaml to set the usuer inside the group dev-tem
+
+```bash 
+vim backstage/catalog/entities/users.yaml
+```
+
+```yaml  backstage/catalog/entities/users.yaml
+...
+  memberOf: [dev-team]
+```
+
+* edit the backstage/app-config.local.yaml config file
+
+```bash 
+vim backstage/app-config.local.yaml
+```
+
+```yaml backstage/app-config.local.yaml
+...
+catalog:
+  import:
+    entityFilename: catalog-info.yaml
+    pullRequestBranchName: backstage-integration
+  rules:
+    - allow: [Component, System, API, Resource, Location]
+  locations:
+    - type: file
+      target: /app/backstage/catalog/entities/groups.yaml
+      rules:
+        - allow: [Group]
+    - type: file
+      target: /app/backstage/catalog/entities/users.yaml
+      rules:
+        - allow: [User]
 ```
 
 <details> <summary>results</summary>
@@ -965,18 +1046,8 @@ Loading config from MergedConfigSource{FileConfigSource{path="/app/backstage/app
 ```
 </details>
 
-### Group Enties Congig
+<img width="977" height="820" alt="image" src="https://github.com/user-attachments/assets/fe8adcab-c48b-46f9-8896-c1d99c1bec7b" />
 
-* add
-
-```bash
-```
-
-<details> <summary>results</summary>
-
-```bash result
-```
-</details>
 
 ### Register external components into the Backstage Catalog
 
