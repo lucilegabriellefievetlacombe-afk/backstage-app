@@ -1058,6 +1058,8 @@ catalog:
 
 ## Backstage TechDocs
 
+*Slide 79*
+
 * [getting-started](https://backstage.io/docs/features/techdocs/getting-started/)
 * [creating-and-publishing](https://backstage.io/docs/features/techdocs/creating-and-publishing/)
 * [techdocs-cli](https://github.com/backstage/backstage/tree/master/packages/techdocs-cli)
@@ -1121,7 +1123,7 @@ vim app-config.local.yaml
 ```yaml
 techdocs:
   generator:
-    runIn: 'docker'
+    runIn: 'local' # 'docker' as we use it a docker we don't wand a DIND 
   builder: 'local'
   publisher:
     type: 'local'
