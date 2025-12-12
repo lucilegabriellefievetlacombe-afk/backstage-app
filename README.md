@@ -1184,9 +1184,13 @@ yarn --cwd packages/backend add @backstage/plugin-techdocs-backend
 
 </details>
 
+*Slide 80*
 * add mkdocs-techdocs-core
 
 ```bash
+export VIRTUAL_ENV=/opt/venv
+python3 -m venv $VIRTUAL_ENV
+export PATH="$VIRTUAL_ENV/bin:$PATH"
 pip3 install mkdocs-techdocs-core
 ```
 
@@ -1196,42 +1200,57 @@ pip3 install mkdocs-techdocs-core
 
 TechDocs is Spotify’s homegrown docs-like-code solution built directly into Backstage. Engineers write their documentation in Markdown files which live together with their code - and with little configuration get a nice-looking doc site in Backstage.
 
-* add
-
-```bash
-```
-
-<details> <summary>results</summary>
-
-```bash result
-```
-</details>
-
 ### Write Code Doc with Backstage
 
-* add
+* [backstage sample project mkdocs](https://github.com/backstage/backstage/blob/master/mkdocs.yml)
+* Add it to your project
 
-```bash
+* project doc is in the project
+* mkdoc is running in backstage container
+
+* make a dockerfile for backstage
+
+```dockerfile
+FROM node:iron-alpine3.23
+ARG AUTH_GITHUB_CLIENT_ID
+ARG AUTH_GITHUB_CLIENT_SECRET
+ARG SRC
+EXPOSE 3000
+EXPOSE 7007
+WORKDIR /app
+
+RUN npm install -g npm@latest
+RUN npm install -g corepack
+RUN yarn set version 4.4.1
+
+RUN apk update && apk add --no-cache vim curl python3 py3-pip make g++ bash github-cli
+
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN pip3 install mkdocs-techdocs-core
+
+VOLUME $SRC
+RUN if [ ! -d $SRC/backstage ]; then npx @backstage/create-app@latest; fi
+
+WORKDIR /app/backstage
+RUN yarn --cwd packages/backend add @backstage/plugin-auth-backend-module-github-provider
+; yarn --cwd packages/app add @backstage/plugin-techdocs; yarn --cwd packages/backend add @backstage/plugin-techdocs-backend
+
+COPY app-config.local.yaml app-config.local.yaml
+COPY packages/backend/src/index.ts packages/backend/src/index.ts
+COPY packages/app/src/App.tsx packages/app/src/App.tsx
+RUN mkdir -p catalog/entities/
+COPY catalog/entities/users.yaml catalog/entities/users.yaml
+COPY catalog/entities/groups.yaml catalog/entities/groups.yaml
+
+ENTRYPOINT ["/usr/local/bin/yarn", "yarn start"]
+CMD -- --config `pwd`/app-config.local.yaml
+
+LABEL backstage
 ```
 
-<details> <summary>results</summary>
-
-```bash result
-```
-</details>
-
-### Install & Configure Backstage TechDocs
-
-* add
-
-```bash
-```
-
-<details> <summary>results</summary>
-
-```bash result
-```
-</details>
 
 ## Backstage Software Templates
 
