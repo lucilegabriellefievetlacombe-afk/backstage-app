@@ -1040,12 +1040,6 @@ catalog:
         - allow: [User]
 ```
 
-<details> <summary>results</summary>
-
-```bash result
-```
-</details>
-
 <img width="977" height="820" alt="image" src="https://github.com/user-attachments/assets/fe8adcab-c48b-46f9-8896-c1d99c1bec7b" />
 
 
@@ -1064,18 +1058,141 @@ catalog:
 
 ## Backstage TechDocs
 
-* add
+* [getting-started](https://backstage.io/docs/features/techdocs/getting-started/)
+* [creating-and-publishing](https://backstage.io/docs/features/techdocs/creating-and-publishing/)
+* [techdocs-cli](https://github.com/backstage/backstage/tree/master/packages/techdocs-cli)
+
+* add yarn techdocs plugins
+
+* [Adding TechDocs frontend plugin](https://backstage.io/docs/features/techdocs/getting-started/#adding-techdocs-frontend-plugin)
 
 ```bash
+vim packages/app/src/App.tsx
+```
+
+```tsx
+import {
+  DefaultTechDocsHome,
+  TechDocsIndexPage,
+  TechDocsReaderPage,
+} from '@backstage/plugin-techdocs';
+import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
+import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
+
+const AppRoutes = () => {
+  <FlatRoutes>
+    {/* ... other plugin routes */}
+    <Route path="/docs" element={<TechDocsIndexPage />}>
+      <DefaultTechDocsHome />
+    </Route>
+    <Route
+      path="/docs/:namespace/:kind/:name/*"
+      element={<TechDocsReaderPage />}
+    >
+      <TechDocsAddons>
+        <ReportIssue />
+      </TechDocsAddons>
+    </Route>
+  </FlatRoutes>;
+};
+```
+
+* [Adding TechDocs Backend plugin](https://backstage.io/docs/features/techdocs/getting-started/#adding-techdocs-backend-plugin)
+
+```bash
+vim packages/backend/src/index.ts
+```
+
+```ts packages/backend/src/index.ts
+const backend = createBackend();
+
+// Other plugins...
+
+backend.add(import('@backstage/plugin-techdocs-backend'));
+
+backend.start();
+```
+
+
+```bash
+vim app-config.local.yaml
+```
+
+```yaml
+techdocs:
+  generator:
+    runIn: 'docker'
+  builder: 'local'
+  publisher:
+    type: 'local'
+  cache:
+    ttl: 3600000
+```
+
+```bash
+yarn --cwd packages/app add @backstage/plugin-techdocs
+yarn --cwd packages/backend add @backstage/plugin-techdocs-backend
 ```
 
 <details> <summary>results</summary>
 
 ```bash result
+➤ YN0000: · Yarn 4.4.1
+➤ YN0000: ┌ Resolution step
+➤ YN0000: └ Completed in 2s 377ms
+➤ YN0000: ┌ Post-resolution validation
+➤ YN0060: │ @testing-library/react is listed by your project with version 14.3.1 (pc9eb9), which doesn't satisfy what @backstage/test-utils requests (^16.0.0).
+➤ YN0060: │ react is listed by your project with version 18.3.1 (pd98da), which doesn't satisfy what @material-ui/core and other dependencies request (but they have non-overlapping ranges!).
+➤ YN0060: │ react-dom is listed by your project with version 18.3.1 (pfa800), which doesn't satisfy what @material-ui/core and other dependencies request (but they have non-overlapping ranges!).
+➤ YN0002: │ app@workspace:packages/app doesn't provide @types/react (pceee1), requested by @backstage/app-defaults and other dependencies.
+➤ YN0002: │ app@workspace:packages/app doesn't provide webpack (p299d9), requested by @backstage/cli.
+➤ YN0002: │ backend@workspace:packages/backend doesn't provide webpack (p00f29), requested by @backstage/cli.
+➤ YN0002: │ root@workspace:. doesn't provide webpack (p40c38), requested by @backstage/cli.
+➤ YN0086: │ Some peer dependencies are incorrectly met by your project; run yarn explain peer-requirements <hash> for details, where <hash> is the six-letter p-prefixed code.
+➤ YN0086: │ Some peer dependencies are incorrectly met by dependencies; run yarn explain peer-requirements for details.
+➤ YN0000: └ Completed
+➤ YN0000: ┌ Fetch step
+➤ YN0000: └ Completed in 8s 883ms
+➤ YN0000: ┌ Link step
+➤ YN0000: └ Completed in 4s 256ms
+➤ YN0000: · Done with warnings in 16s 228ms
 ```
+
+```bash result
+➤ YN0000: · Yarn 4.4.1
+➤ YN0000: ┌ Resolution step
+➤ YN0000: └ Completed in 2s 615ms
+➤ YN0000: ┌ Post-resolution validation
+➤ YN0060: │ @testing-library/react is listed by your project with version 14.3.1 (pc9eb9), which doesn't satisfy what @backstage/test-utils requests (^16.0.0).
+➤ YN0060: │ react is listed by your project with version 18.3.1 (pd98da), which doesn't satisfy what @material-ui/core and other dependencies request (but they have non-overlapping ranges!).
+➤ YN0060: │ react-dom is listed by your project with version 18.3.1 (pfa800), which doesn't satisfy what @material-ui/core and other dependencies request (but they have non-overlapping ranges!).
+➤ YN0002: │ app@workspace:packages/app doesn't provide @types/react (pceee1), requested by @backstage/app-defaults and other dependencies.
+➤ YN0002: │ app@workspace:packages/app doesn't provide webpack (p299d9), requested by @backstage/cli.
+➤ YN0002: │ backend@workspace:packages/backend doesn't provide webpack (p00f29), requested by @backstage/cli.
+➤ YN0002: │ root@workspace:. doesn't provide webpack (p40c38), requested by @backstage/cli.
+➤ YN0086: │ Some peer dependencies are incorrectly met by your project; run yarn explain peer-requirements <hash> for details, where <hash> is the six-letter p-prefixed code.
+➤ YN0086: │ Some peer dependencies are incorrectly met by dependencies; run yarn explain peer-requirements for details.
+➤ YN0000: └ Completed
+➤ YN0000: ┌ Fetch step
+➤ YN0000: └ Completed in 8s 374ms
+➤ YN0000: ┌ Link step
+➤ YN0000: └ Completed in 2s 322ms
+➤ YN0000: · Done with warnings in 13s 767ms
+```
+
 </details>
 
+* add mkdocs-techdocs-core
+
+```bash
+pip3 install mkdocs-techdocs-core
+```
+
+*It should be included in dockerfile*
+
 ### What are TechDocs ?
+
+TechDocs is Spotify’s homegrown docs-like-code solution built directly into Backstage. Engineers write their documentation in Markdown files which live together with their code - and with little configuration get a nice-looking doc site in Backstage.
 
 * add
 
