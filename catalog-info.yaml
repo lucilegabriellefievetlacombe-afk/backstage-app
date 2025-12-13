@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: python-app
+  description: Python app that displays gretings.
+  annotations:
+    github.com/project-slug: lucilegabriellefievetlacombe-afk/backstagebase
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: service
+  owner: dev-team
+  lifecycle: experimental
