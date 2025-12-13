@@ -733,7 +733,6 @@ const app = createApp({
 
 *Slide 69. Backstage resolver*
 
-
 * We need white liste of user
 * create users in backstage
 * packages/catalog-model/examples/acme/team-a-group.yaml
@@ -809,6 +808,8 @@ catalog:
 
 * we have created our white list, and configure backsatge to use it
 
+*for me merge is not ok, so I did a complete and distinct app-config.local.yaml, with all sections*
+
 *Slide 70. Test the Backsatge authentication*
 
 #### recap
@@ -825,7 +826,7 @@ catalog:
 
 ```bash
 cd /app/backstage/
-yarn start
+yarn start --config `pwd`/app-config.local.yaml
 ```
 
 *yarn dev is deprecated*
@@ -833,73 +834,214 @@ yarn start
 <details> <summary>results</summary>
 
 ```bash result
+source .env; docker run --rm -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app backstage:v0 bash
+7bacffbb16db:/app# $AUTH_GITHUB_CLIENT_ID
+bash: Ov23liBK1L8HtSe0U0bp: command not found
+7bacffbb16db:/app# apk add --no-cache vim curl python3 py3-pip make g++ bash github-cli
+(1/4) Installing pcre2 (10.47-r0)
+(2/4) Installing git (2.52.0-r0)
+(3/4) Installing git-init-template (2.52.0-r0)
+(4/4) Installing github-cli (2.83.0-r1)
+Executing busybox-1.37.0-r29.trigger
+OK: 421 MiB in 72 packages
+7bacffbb16db:/app# cd backstage/
+7bacffbb16db:/app/backstage# yarn start
+Starting app, backend
+Loaded config from app-config.yaml, app-config.local.yaml
+fatal: detected dubious ownership in repository at '/app'
+To add an exception for this directory, call:
+
+        git config --global --add safe.directory /app
+fatal: detected dubious ownership in repository at '/app'
+To add an exception for this directory, call:
+
+        git config --global --add safe.directory /app
+NOTE: Did not compute git version or commit hash, could not execute the git command line utility
+<i> [webpack-dev-server] Project is running at:
+<i> [webpack-dev-server] Loopback: http://localhost:3000/, http://[::1]:3000/
+<i> [webpack-dev-server] On Your Network (IPv4): http://172.17.0.2:3000/
+<i> [webpack-dev-server] Content not from webpack is served from '/app/backstage/packages/app/public' directory
+<i> [webpack-dev-server] 404s will fallback to '/index.html'
+Rspack compiled successfully
+Loading config from MergedConfigSource{FileConfigSource{path="/app/backstage/app-config.yaml"}, FileConfigSource{path="/app/backstage/app-config.local.yaml"}, EnvConfigSource{count=0}}
+2025-12-10T16:40:34.677Z backstage info Found 2 new secrets in config that will be redacted
+2025-12-10T16:40:34.754Z rootHttpRouter info Listening on 0.0.0.0:7007
+2025-12-10T16:40:34.758Z backstage info Plugin initialization started: 'app', 'proxy', 'scaffolder', 'techdocs', 'auth', 'catalog', 'permission', 'search', 'kubernetes', 'notifications', 'signals' type="initialization"
 ```
+
+<img width="1892" height="781" alt="image" src="https://github.com/user-attachments/assets/0ca6a2fb-eb21-4afe-806b-4edb59a2ce79" />
+
 </details>
 
 ### Test Authentication
 
-* add
+<img width="883" height="403" alt="image" src="https://github.com/user-attachments/assets/ad12c518-90cc-420d-b59c-305671a6c65d" />
+<img width="883" height="403" alt="image" src="https://github.com/user-attachments/assets/363acbe5-ead7-4335-8b3d-7ca3f9ce75e2" />
+<img width="992" height="1002" alt="image" src="https://github.com/user-attachments/assets/09bb0fe7-3aed-4149-b18e-81335cf7e644" />
+
+<img width="881" height="641" alt="image" src="https://github.com/user-attachments/assets/26ad0471-770a-47fc-a5d3-12730e603518" />
+<img width="892" height="623" alt="image" src="https://github.com/user-attachments/assets/bfc69309-8dc8-47aa-993c-9d853f515654" />
+
+* keep as new image
 
 ```bash
+docker ps
+docker commit 7bacffbb16db backstage:v1
 ```
-
-<details> <summary>results</summary>
-
-```bash result
-```
-</details>
 
 ## Backstage Software Catalog
 
-* add
+* Restart new backstage image with local configuration only
 
 ```bash
+cd backstage-app
+source .env
+docker run --rm -it -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -p 3000:3000 -p 7007:7007 -v `pwd`:/app -w /app backstage:v1 bash
+cd backstage
+yarn start --config `pwd`/app-config.local.yaml
 ```
 
 <details> <summary>results</summary>
 
 ```bash result
+Starting app, backend
+Loaded config from app-config.local.yaml
+fatal: detected dubious ownership in repository at '/app'
+To add an exception for this directory, call:
+
+        git config --global --add safe.directory /app
+fatal: detected dubious ownership in repository at '/app'
+To add an exception for this directory, call:
+
+        git config --global --add safe.directory /app
+NOTE: Did not compute git version or commit hash, could not execute the git command line utility
+<i> [webpack-dev-server] Project is running at:
+<i> [webpack-dev-server] Loopback: http://localhost:3000/, http://[::1]:3000/
+<i> [webpack-dev-server] On Your Network (IPv4): http://172.17.0.2:3000/
+<i> [webpack-dev-server] Content not from webpack is served from '/app/backstage/packages/app/public' directory
+<i> [webpack-dev-server] 404s will fallback to '/index.html'
+Rspack compiled successfully
+Loading config from MergedConfigSource{FileConfigSource{path="/app/backstage/app-config.local.yaml"}, EnvConfigSource{count=0}}
+2025-12-11T11:16:38.340Z backstage info Found 2 new secrets in config that will be redacted
+2025-12-11T11:16:38.430Z rootHttpRouter info Listening on 0.0.0.0:7007
+2025-12-11T11:16:38.436Z backstage info Plugin initialization started: 'app', 'proxy', 'scaffolder', 'techdocs', 'auth', 'catalog', 'permission', 'search', 'kubernetes', 'notifications', 'signals' type="initialization"
 ```
 </details>
 
 ### What is Backstage Software Catalog ?
 
-* add
+* The Catalog is on the home page 
 
-```bash
-```
+<img width="908" height="617" alt="image" src="https://github.com/user-attachments/assets/597865c9-858d-4bbd-bd0c-0b52dfcb131c" />
 
-<details> <summary>results</summary>
 
-```bash result
-```
-</details>
+* [backstage software catalog doc](https://backstage.io/docs/features/software-catalog/)
+
+The Backstage Software Catalog is a centralized system that keeps track of ownership and metadata for all the software in your ecosystem (services, websites, libraries, data pipelines, etc). The catalog is built around the concept of metadata YAML files stored together with the code, which are then harvested and visualized in Backstage.
+
+*Slide 71. What is backsatge catalog ?*
 
 ### External components
 
-* add
+* [backstage doc on external integration](https://backstage.io/docs/features/software-catalog/external-integrations)
+
+*Slide 72. Can you registers existant components into Backstage ?*
+
+* add the catalog info for your component, example for our python-app :
+  * https://github.com/your-own-github-account/pyhon-app.git/catalog-info.yaml 
+
+```yaml
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: python-app
+  description: Python app that displays gretings.
+  annotations:
+    github.com/project-slug: your-own-github-account/pyhon-app
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: service
+  owner: dev-team
+  lifecycle: experimental
+```
+
+*we set a group as owner, let's say **dev-team***
+
+### Group Enties Config
+
+We will add the group **dev-team** inside the container.
+
+* get in the container
 
 ```bash
+docker ps
+docker exec -it theidofthebackstagecontainer bash
 ```
 
-<details> <summary>results</summary>
+* add and edit a backstage catalog groups entity
+* [acme doc sample](https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme/backstage-group.yaml)
 
-```bash result
-```
-</details>
-
-### Group Enties Congig
-
-* add
-
-```bash
+```bash 
+vim backstage/catalog/entities/groups.yaml
 ```
 
-<details> <summary>results</summary>
+* we call it dev-team
+* we keep children
+* we remove parent
+* change icon, mail and description
 
-```bash result
+```yaml catalog/entities/groups.yaml
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: dev-team
+  description: Team for developers
+spec:
+  type: team
+  profile:
+    email: ${your_email_used_in_github}
+    picture: https://0.gravatar.com/userimage/273238023/d8c1653a7bee11bb7b21dc09624e8221?size=256
+  children: []
 ```
-</details>
+
+* edit user.yaml to set the usuer inside the group dev-tem
+
+```bash 
+vim backstage/catalog/entities/users.yaml
+```
+
+```yaml  backstage/catalog/entities/users.yaml
+...
+  memberOf: [dev-team]
+```
+
+* edit the backstage/app-config.local.yaml config file
+
+```bash 
+vim backstage/app-config.local.yaml
+```
+
+```yaml backstage/app-config.local.yaml
+...
+catalog:
+  import:
+    entityFilename: catalog-info.yaml
+    pullRequestBranchName: backstage-integration
+  rules:
+    - allow: [Component, System, API, Resource, Location]
+  locations:
+    - type: file
+      target: /app/backstage/catalog/entities/groups.yaml
+      rules:
+        - allow: [Group]
+    - type: file
+      target: /app/backstage/catalog/entities/users.yaml
+      rules:
+        - allow: [User]
+```
+
+<img width="977" height="820" alt="image" src="https://github.com/user-attachments/assets/fe8adcab-c48b-46f9-8896-c1d99c1bec7b" />
+
 
 ### Register external components into the Backstage Catalog
 
@@ -916,55 +1058,199 @@ yarn start
 
 ## Backstage TechDocs
 
-* add
+*Slide 79*
+
+* [getting-started](https://backstage.io/docs/features/techdocs/getting-started/)
+* [creating-and-publishing](https://backstage.io/docs/features/techdocs/creating-and-publishing/)
+* [techdocs-cli](https://github.com/backstage/backstage/tree/master/packages/techdocs-cli)
+
+* add yarn techdocs plugins
+
+* [Adding TechDocs frontend plugin](https://backstage.io/docs/features/techdocs/getting-started/#adding-techdocs-frontend-plugin)
 
 ```bash
+vim packages/app/src/App.tsx
+```
+
+```tsx
+import {
+  DefaultTechDocsHome,
+  TechDocsIndexPage,
+  TechDocsReaderPage,
+} from '@backstage/plugin-techdocs';
+import { TechDocsAddons } from '@backstage/plugin-techdocs-react';
+import { ReportIssue } from '@backstage/plugin-techdocs-module-addons-contrib';
+
+const AppRoutes = () => {
+  <FlatRoutes>
+    {/* ... other plugin routes */}
+    <Route path="/docs" element={<TechDocsIndexPage />}>
+      <DefaultTechDocsHome />
+    </Route>
+    <Route
+      path="/docs/:namespace/:kind/:name/*"
+      element={<TechDocsReaderPage />}
+    >
+      <TechDocsAddons>
+        <ReportIssue />
+      </TechDocsAddons>
+    </Route>
+  </FlatRoutes>;
+};
+```
+
+* [Adding TechDocs Backend plugin](https://backstage.io/docs/features/techdocs/getting-started/#adding-techdocs-backend-plugin)
+
+```bash
+vim packages/backend/src/index.ts
+```
+
+```ts packages/backend/src/index.ts
+const backend = createBackend();
+
+// Other plugins...
+
+backend.add(import('@backstage/plugin-techdocs-backend'));
+
+backend.start();
+```
+
+
+```bash
+vim app-config.local.yaml
+```
+
+```yaml
+techdocs:
+  generator:
+    runIn: 'local' # 'docker' as we use it a docker we don't wand a DIND 
+  builder: 'local'
+  publisher:
+    type: 'local'
+  cache:
+    ttl: 3600000
+```
+
+```bash
+yarn --cwd packages/app add @backstage/plugin-techdocs
+yarn --cwd packages/backend add @backstage/plugin-techdocs-backend
 ```
 
 <details> <summary>results</summary>
 
 ```bash result
+➤ YN0000: · Yarn 4.4.1
+➤ YN0000: ┌ Resolution step
+➤ YN0000: └ Completed in 2s 377ms
+➤ YN0000: ┌ Post-resolution validation
+➤ YN0060: │ @testing-library/react is listed by your project with version 14.3.1 (pc9eb9), which doesn't satisfy what @backstage/test-utils requests (^16.0.0).
+➤ YN0060: │ react is listed by your project with version 18.3.1 (pd98da), which doesn't satisfy what @material-ui/core and other dependencies request (but they have non-overlapping ranges!).
+➤ YN0060: │ react-dom is listed by your project with version 18.3.1 (pfa800), which doesn't satisfy what @material-ui/core and other dependencies request (but they have non-overlapping ranges!).
+➤ YN0002: │ app@workspace:packages/app doesn't provide @types/react (pceee1), requested by @backstage/app-defaults and other dependencies.
+➤ YN0002: │ app@workspace:packages/app doesn't provide webpack (p299d9), requested by @backstage/cli.
+➤ YN0002: │ backend@workspace:packages/backend doesn't provide webpack (p00f29), requested by @backstage/cli.
+➤ YN0002: │ root@workspace:. doesn't provide webpack (p40c38), requested by @backstage/cli.
+➤ YN0086: │ Some peer dependencies are incorrectly met by your project; run yarn explain peer-requirements <hash> for details, where <hash> is the six-letter p-prefixed code.
+➤ YN0086: │ Some peer dependencies are incorrectly met by dependencies; run yarn explain peer-requirements for details.
+➤ YN0000: └ Completed
+➤ YN0000: ┌ Fetch step
+➤ YN0000: └ Completed in 8s 883ms
+➤ YN0000: ┌ Link step
+➤ YN0000: └ Completed in 4s 256ms
+➤ YN0000: · Done with warnings in 16s 228ms
 ```
+
+```bash result
+➤ YN0000: · Yarn 4.4.1
+➤ YN0000: ┌ Resolution step
+➤ YN0000: └ Completed in 2s 615ms
+➤ YN0000: ┌ Post-resolution validation
+➤ YN0060: │ @testing-library/react is listed by your project with version 14.3.1 (pc9eb9), which doesn't satisfy what @backstage/test-utils requests (^16.0.0).
+➤ YN0060: │ react is listed by your project with version 18.3.1 (pd98da), which doesn't satisfy what @material-ui/core and other dependencies request (but they have non-overlapping ranges!).
+➤ YN0060: │ react-dom is listed by your project with version 18.3.1 (pfa800), which doesn't satisfy what @material-ui/core and other dependencies request (but they have non-overlapping ranges!).
+➤ YN0002: │ app@workspace:packages/app doesn't provide @types/react (pceee1), requested by @backstage/app-defaults and other dependencies.
+➤ YN0002: │ app@workspace:packages/app doesn't provide webpack (p299d9), requested by @backstage/cli.
+➤ YN0002: │ backend@workspace:packages/backend doesn't provide webpack (p00f29), requested by @backstage/cli.
+➤ YN0002: │ root@workspace:. doesn't provide webpack (p40c38), requested by @backstage/cli.
+➤ YN0086: │ Some peer dependencies are incorrectly met by your project; run yarn explain peer-requirements <hash> for details, where <hash> is the six-letter p-prefixed code.
+➤ YN0086: │ Some peer dependencies are incorrectly met by dependencies; run yarn explain peer-requirements for details.
+➤ YN0000: └ Completed
+➤ YN0000: ┌ Fetch step
+➤ YN0000: └ Completed in 8s 374ms
+➤ YN0000: ┌ Link step
+➤ YN0000: └ Completed in 2s 322ms
+➤ YN0000: · Done with warnings in 13s 767ms
+```
+
 </details>
+
+*Slide 80*
+* add mkdocs-techdocs-core
+
+```bash
+export VIRTUAL_ENV=/opt/venv
+python3 -m venv $VIRTUAL_ENV
+export PATH="$VIRTUAL_ENV/bin:$PATH"
+pip3 install mkdocs-techdocs-core
+```
+
+*It should be included in dockerfile*
 
 ### What are TechDocs ?
 
-* add
-
-```bash
-```
-
-<details> <summary>results</summary>
-
-```bash result
-```
-</details>
+TechDocs is Spotify’s homegrown docs-like-code solution built directly into Backstage. Engineers write their documentation in Markdown files which live together with their code - and with little configuration get a nice-looking doc site in Backstage.
 
 ### Write Code Doc with Backstage
 
-* add
+* [backstage sample project mkdocs](https://github.com/backstage/backstage/blob/master/mkdocs.yml)
+* Add it to your project
 
-```bash
+* project doc is in the project
+* mkdoc is running in backstage container
+
+* make a dockerfile for backstage
+
+```dockerfile
+FROM node:iron-alpine3.23
+ARG AUTH_GITHUB_CLIENT_ID
+ARG AUTH_GITHUB_CLIENT_SECRET
+ARG SRC
+EXPOSE 3000
+EXPOSE 7007
+WORKDIR /app
+
+RUN npm install -g npm@latest
+RUN npm install -g corepack
+RUN yarn set version 4.4.1
+
+RUN apk update && apk add --no-cache vim curl python3 py3-pip make g++ bash github-cli
+
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN pip3 install mkdocs-techdocs-core
+
+VOLUME $SRC
+RUN if [ ! -d $SRC/backstage ]; then npx @backstage/create-app@latest; fi
+
+WORKDIR /app/backstage
+RUN yarn --cwd packages/backend add @backstage/plugin-auth-backend-module-github-provider
+; yarn --cwd packages/app add @backstage/plugin-techdocs; yarn --cwd packages/backend add @backstage/plugin-techdocs-backend
+
+COPY app-config.local.yaml app-config.local.yaml
+COPY packages/backend/src/index.ts packages/backend/src/index.ts
+COPY packages/app/src/App.tsx packages/app/src/App.tsx
+RUN mkdir -p catalog/entities/
+COPY catalog/entities/users.yaml catalog/entities/users.yaml
+COPY catalog/entities/groups.yaml catalog/entities/groups.yaml
+
+ENTRYPOINT ["/usr/local/bin/yarn", "yarn start"]
+CMD -- --config `pwd`/app-config.local.yaml
+
+LABEL backstage
 ```
 
-<details> <summary>results</summary>
-
-```bash result
-```
-</details>
-
-### Install & Configure Backstage TechDocs
-
-* add
-
-```bash
-```
-
-<details> <summary>results</summary>
-
-```bash result
-```
-</details>
 
 ## Backstage Software Templates
 
