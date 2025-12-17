@@ -1639,7 +1639,7 @@ FROM alpine-backstage-build:0.0.2
 # we use arg vars
 ARG AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID
 ARG AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET
-ARG BURL=$BCKSTG_CONFIGS_URL
+ARG BURL=$BURL
 # we explain what ports need to be exposed
 EXPOSE 3000
 EXPOSE 7007
@@ -1675,14 +1675,14 @@ source .env # got necessary env vars  BCKSTG_CONFIGS_URL AUTH_GITHUB_CLIENT_ID A
 ```
 
 ```bash
-docker build -f Dockerfile-bckstg -t alpine-backstage-build:0.0.0 --build-arg AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID --build-arg AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET --build-arg BCKSTG_CONFIGS_URL=$BCKSTG_CONFIGS_URL .
+docker build -f Dockerfile-bckstg -t alpine-backstage-run:0.0.0 --build-arg AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID --build-arg AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET --build-arg BCKSTG_CONFIGS_URL=$BCKSTG_CONFIGS_URL .
 ```
 
 * we will need a better system for the secrets 
 * run ephemeral alpine-backstage-build:0.0.0 image as bckstg-run, with env vars, tty interactivity, plublished ports and mounted volume 
 
 ```bash
-docker run --rm --name bckstg-run -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app alpine-backstage-build:0.0.0 bash
+docker run --rm --name bckstg-run -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app alpine-backstage-run:0.0.0 bash
 ```
 
 ## Backstage Software Templates
