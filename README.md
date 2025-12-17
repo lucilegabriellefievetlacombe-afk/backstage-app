@@ -1253,7 +1253,7 @@ LABEL img=alpine-backstage-build description="image for local backstage build" v
 * build the build stage image for backstage
 
 ```bash 
-cd ~/bckstg; docker build -f Dockerfile-build -t alpine-backstage-build:0.0 .
+cd ~/bckstg; docker build -f Dockerfile-build -t alpine-backstage-build:0.0.1 .
 ```
 
 <details> <summary>results</summary>
@@ -1290,8 +1290,8 @@ cd ~/bckstg; docker build -f Dockerfile-build -t alpine-backstage-build:0.0 .
  => => exporting config sha256:2d61302460512897053aa2f61e27f9e66654047cffb093a70ca668af41  0.0s
  => => exporting attestation manifest sha256:99778ddbd7a07607d3de5aa03eddc3acefe5d666c4c7  0.0s
  => => exporting manifest list sha256:941f06fbd1d6669aa1aa796fcf3b6cada12c472688e521e4da1  0.0s
- => => naming to docker.io/library/alpine-backstage-build:0.0                               0.0s
- => => unpacking to docker.io/library/alpine-backstage-build:0.0                           10.1s
+ => => naming to docker.io/library/alpine-backstage-build:0.0.1                             0.0s
+ => => unpacking to docker.io/library/alpine-backstage-build:0.0.1                         10.1s
 ```
 
 ```bash
@@ -1300,7 +1300,7 @@ docker images
 
 ```bash result
 IMAGE                                           ID             DISK USAGE   CONTENT SIZE   EXTRA
-alpine-backstage-build:0.0                       941f06fbd1d6       1.12GB          279MB
+alpine-backstage-build:0.0.1                    941f06fbd1d6       1.12GB          279MB
 ....
 ```
 
@@ -1465,7 +1465,7 @@ It seems that something went wrong when creating the app 🤔
 * We need to finish the installation inside the container 
 
 ```bash
-docker run --name alpine-bckstg-it -it -v `pwd`/:/app -w /app --entrypoint '' alpine-backstage-base:0.0 bash
+docker run --name alpine-bckstg-it -it -v `pwd`/:/app -w /app --entrypoint '' alpine-backstage-base:0.0.0 bash
 ```
 
 ```bash inside the container alpine-bckstg-it
@@ -1508,22 +1508,22 @@ RUN pip3 install mkdocs-techdocs-core
 # will need mount point for /app outside windows
 ENTRYPOINT npx @backstage/create-app@latest
 
-LABEL img=backstage-build description="image for local backstage build" version="0.0.1"
+LABEL img=alpine-backstage-build description="image for local backstage build" version="0.0.2"
 ```
 
 * I clean old stuff
 
 ```bash
 cd ~/backstage-app; rm -rf backstage
-docker rm alpine-bckstg-it  alpine-bckstg-src; docker image rm alpine-backstage-build:0.0
+docker rm alpine-bckstg-it  alpine-bckstg-src; docker image rm alpine-backstage-build:0.0.1
 ```
 
 * I build again
 * I run interactive (it) alpine-bckstg-src alpine npde 24 container, with local mount and bash 
 
 ```bash
-docker build -f Dockerfile-build -t alpine-backstage-build:0.0 .
-docker run --name alpine-bckstg-src -it -v `pwd`/:/app -w /app alpine-backstage-build:0.0 bash
+docker build -f Dockerfile-build -t alpine-backstage-build:0.0.2 .
+docker run --name alpine-bckstg-src -it -v `pwd`/:/app -w /app alpine-backstage-build:0.0.2 bash
 ```
 
 <details> <summary>results</summary>
@@ -1614,6 +1614,11 @@ Creating the app...
   Set up the software catalog: https://backstage.io/docs/features/software-catalog/configuration
   Add authentication: https://backstage.io/docs/auth/
 ```
+
+* the backstage directory is created inside the container in /app/backstage
+* it is also created inside the host in ~/backstage-app/backstage (where we mounted the volume)
+* in this directory we have all the code and the default configuration  
+
 </details>
 
 ##### Dockerfile for configuration, start and publish backstage  
@@ -1624,22 +1629,24 @@ Creating the app...
    * define the needed exposed ports to publish at run
    * use mounted backstage sources and default configurations
    * add plugins for auth and tech docs  
-   * overwrites the needed configurations using curl
+   * overwrites the needed configurations using curl (we pushed our configuration on a remote git repository)
    * set backstage yarn start has entry point
    * set the default local configuration as cmd
 
 ```yaml  Dockerfile-bckstg
-FROM alpine-backstage-build
+# we use our backstage building image
+FROM alpine-backstage-build:0.0.2
+# we use arg vars
 ARG AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID
 ARG AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET
 ARG BURL=$BCKSTG_CONFIGS_URL
-# 
+# we explain what ports need to be exposed
 EXPOSE 3000
 EXPOSE 7007
 
-# IN BACKSTAGE
-# Get in backstage and install authentication and techdocs with yarn
+# Get in backstage directory
 WORKDIR /app/backstage
+
 # Add auth and techdocs plugins
 RUN yarn --cwd packages/backend add @backstage/plugin-auth-backend-module-github-provider
 RUN yarn --cwd packages/app add @backstage/plugin-techdocs
@@ -1656,23 +1663,23 @@ RUN curl --create-dirs --user $AUTH_GITHUB_CLIENT:$AUTH_GITHUB_CLIENT_SECRET $BU
 ENTRYPOINT ["/usr/local/bin/yarn", "start"]
 CMD -- --config /app/backstage/app-config.local.yaml
 
-LABEL img=backstage description="image for running local backstage" version="0.0.0"
+LABEL img=alpine-backstage-run description="image for running local backstage" version="0.0.0"
 ```
 
 * build image with vars and secrets stored in .env :/ as build-args
-* tag is bckstg:0.0
+* tag is alpine-backstage-build:0.0.0
 * use Dockerfile-bckstg
 
 ```bash
 soure .env # got necessary env vars  BCKSTG_CONFIGS_URL AUTH_GITHUB_CLIENT_ID AUTH_GITHUB_CLIENT_SECRET
-docker build -f Dockerfile-bckstg -t bckstg:0.0 --build-arg AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID --build-arg AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET --build-arg BCKSTG_CONFIGS_URL=$BCKSTG_CONFIGS_URL .
+docker build -f Dockerfile-bckstg -t alpine-backstage-build:0.0.0 --build-arg AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID --build-arg AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET --build-arg BCKSTG_CONFIGS_URL=$BCKSTG_CONFIGS_URL .
 ```
 
 * we will need a better system for the secrets 
-* run bckstg:0.0 image as 
+* run ephemeral alpine-backstage-build:0.0.0 image as bckstg-run, with env vars, tty interactivity, plublished ports and mounted volume 
 
 ```bash
-docker run --rm --name backstage-app -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app bckstg:0.0 bash
+docker run --rm --name bckstg-run -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app alpine-backstage-build:0.0.0 bash
 ```
 
 ## Backstage Software Templates
