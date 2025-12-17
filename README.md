@@ -1671,7 +1671,10 @@ LABEL img=alpine-backstage-run description="image for running local backstage" v
 * use Dockerfile-bckstg
 
 ```bash
-soure .env # got necessary env vars  BCKSTG_CONFIGS_URL AUTH_GITHUB_CLIENT_ID AUTH_GITHUB_CLIENT_SECRET
+source .env # got necessary env vars  BCKSTG_CONFIGS_URL AUTH_GITHUB_CLIENT_ID AUTH_GITHUB_CLIENT_SECRET
+```
+
+```bash
 docker build -f Dockerfile-bckstg -t alpine-backstage-build:0.0.0 --build-arg AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID --build-arg AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET --build-arg BCKSTG_CONFIGS_URL=$BCKSTG_CONFIGS_URL .
 ```
 
