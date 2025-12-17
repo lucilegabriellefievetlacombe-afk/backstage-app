@@ -1196,10 +1196,12 @@ TechDocs is Spotify’s homegrown docs-like-code solution built directly into Ba
 * project doc is in the project
 * mkdoc is running in backstage container
 
-#### Dockerfiles  for backstage local installation (wsl2)
+#### Dockerfiles for backstage local installation (wsl2)
 
 *make a dockerfile-build for backstage build and 
 installation, and a dockerfile-start for backstage use.*
+
+##### Dockerfile building backstage base : packadges, librairies, sources and default configurations 
 
 * The dockerfile-buid will :
    * use an alpine node image
@@ -1307,7 +1309,7 @@ alpine-backstage-build:0.0                       941f06fbd1d6       1.12GB      
 * run the built image with mount point for /app of the container
    * we are in a directory without windows sharing
    * in this directory of the backstage sources and configuration will be created by "npx @backstage/create-app@latest" entry point command
-   * 
+   * we need bash and interactivity
 
 ```bash
 docker run --name alpine-bckstg-src -it -v `pwd`/:/app -w /app alpine-backstage-build:0.0 bash
@@ -1460,16 +1462,217 @@ It seems that something went wrong when creating the app 🤔
 
 </details>
 
-* you might need to finish the installation inside the container 
+* We need to finish the installation inside the container 
 
 ```bash
-docker run  --name alpine-bckstg-it -it -v `pwd`/:/app -w /app --entrypoint '' alpine-backstage-buid:0.0 bash
+docker run --name alpine-bckstg-it -it -v `pwd`/:/app -w /app --entrypoint '' alpine-backstage-base:0.0 bash
 ```
 
-* we need a better system for the secrets 
+```bash inside the container alpine-bckstg-it
+cd backstage; yarn install
+```
+
+* 🤔 We have inconsistency in packadges dependencies
+* we need a node version > 22 (after research on internet)
+* I use the node 24 alpine, got pb with corepack and found a resolution trick
+
+```yaml
+# Alpine Node for Backstage Image Build
+FROM node:24-alpine
+
+# Create and use /app
+RUN mkdir -p /app
+WORKDIR /app
+
+# Update npm, intall corepack
+RUN npm install -g npm@latest
+RUN npm uninstall -g yarn pnpm
+RUN npm install -g corepack
+
+# Set yarn version 4.4.1
+RUN npm install yarn
+RUN yarn set version 4.4.1
+RUN apk update && apk add --no-cache vim curl python3 py3-pip make g++ bash github-cli
+# Change the shell
+SHELL ["/bin/bash", "-c"]
+
+# Adding python venv for mkdocs techdocs
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Adding mkdocs-techdoc
+RUN pip3 install mkdocs-techdocs-core
+
+# Set the entrypoint for backstage installation at run
+# will need mount point for /app outside windows
+ENTRYPOINT npx @backstage/create-app@latest
+
+LABEL img=backstage-build description="image for local backstage build" version="0.0.1"
+```
+
+* I clean old stuff
 
 ```bash
-docker run --rm -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app backstage:v0 bash
+cd ~/backstage-app; rm -rf backstage
+docker rm alpine-bckstg-it  alpine-bckstg-src; docker image rm alpine-backstage-build:0.0
+```
+
+* I build again
+* I run interactive (it) alpine-bckstg-src alpine npde 24 container, with local mount and bash 
+
+```bash
+docker build -f Dockerfile-build -t alpine-backstage-build:0.0 .
+docker run --name alpine-bckstg-src -it -v `pwd`/:/app -w /app alpine-backstage-build:0.0 bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+Need to install the following packages:
+@backstage/create-app@0.7.7
+Ok to proceed? (y) y
+npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+? Enter a name for the app [required] backstage
+
+Creating the app...
+
+ Checking if the directory is available:
+  checking      backstage ✔
+
+ Creating a temporary app directory:
+
+ Preparing files:
+  copying       .dockerignore ✔
+  copying       .eslintignore ✔
+  templating    .eslintrc.js.hbs ✔
+  templating    .gitignore.hbs ✔
+  copying       .prettierignore ✔
+  templating    .yarnrc.yml.hbs ✔
+  copying       README.md ✔
+  copying       app-config.local.yaml ✔
+  copying       app-config.production.yaml ✔
+  templating    app-config.yaml.hbs ✔
+  templating    backstage.json.hbs ✔
+  templating    catalog-info.yaml.hbs ✔
+  templating    package.json.hbs ✔
+  copying       playwright.config.ts ✔
+  copying       tsconfig.json ✔
+  copying       yarn.lock ✔
+  copying       README.md ✔
+  copying       yarn-4.4.1.cjs ✔
+  copying       entities.yaml ✔
+  copying       org.yaml ✔
+  copying       template.yaml ✔
+  copying       catalog-info.yaml ✔
+  copying       index.js ✔
+  copying       package.json ✔
+  copying       README.md ✔
+  templating    .eslintrc.js.hbs ✔
+  copying       Dockerfile ✔
+  copying       README.md ✔
+  templating    package.json.hbs ✔
+  copying       index.ts ✔
+  copying       .eslintignore ✔
+  templating    .eslintrc.js.hbs ✔
+  templating    package.json.hbs ✔
+  copying       android-chrome-192x192.png ✔
+  copying       apple-touch-icon.png ✔
+  copying       favicon-16x16.png ✔
+  copying       favicon-32x32.png ✔
+  copying       favicon.ico ✔
+  copying       index.html ✔
+  copying       manifest.json ✔
+  copying       robots.txt ✔
+  copying       safari-pinned-tab.svg ✔
+  copying       app.test.ts ✔
+  copying       App.test.tsx ✔
+  copying       App.tsx ✔
+  copying       apis.ts ✔
+  copying       index.tsx ✔
+  copying       setupTests.ts ✔
+  copying       LogoFull.tsx ✔
+  copying       LogoIcon.tsx ✔
+  copying       Root.tsx ✔
+  copying       index.ts ✔
+  copying       EntityPage.tsx ✔
+  copying       SearchPage.tsx ✔
+
+ Moving to final location:
+  moving        backstage ✔
+  fetching      yarn.lock seed ✔
+
+ Installing dependencies:
+  executing     yarn install ✔
+  executing     yarn tsc ✔
+
+🥇  Successfully created backstage
+
+
+ All set! Now you might want to:
+  Run the app: cd backstage && yarn start
+  Set up the software catalog: https://backstage.io/docs/features/software-catalog/configuration
+  Add authentication: https://backstage.io/docs/auth/
+```
+</details>
+
+##### Dockerfile for configuration, start and publish backstage  
+
+* The Dockerfile-bckstg
+   * use previous image alpine-backstage-build in his from (we could flatten the image before) 
+   * use env vars to authenticate and configure the curl url
+   * define the needed exposed ports to publish at run
+   * use mounted backstage sources and default configurations
+   * add plugins for auth and tech docs  
+   * overwrites the needed configurations using curl
+   * set backstage yarn start has entry point
+   * set the default local configuration as cmd
+
+```yaml  Dockerfile-bckstg
+FROM alpine-backstage-build
+ARG AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID
+ARG AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET
+ARG BURL=$BCKSTG_CONFIGS_URL
+# 
+EXPOSE 3000
+EXPOSE 7007
+
+# IN BACKSTAGE
+# Get in backstage and install authentication and techdocs with yarn
+WORKDIR /app/backstage
+# Add auth and techdocs plugins
+RUN yarn --cwd packages/backend add @backstage/plugin-auth-backend-module-github-provider
+RUN yarn --cwd packages/app add @backstage/plugin-techdocs
+RUN yarn --cwd packages/backend add @backstage/plugin-techdocs-backend
+
+# Overwrite configurations
+RUN curl --create-dirs --user $AUTH_GITHUB_CLIENT:$AUTH_GITHUB_CLIENT_SECRET $BURL/catalog/entities/users.yaml -o catalog/entities/users.yaml
+RUN curl --create-dirs --user $AUTH_GITHUB_CLIENT:$AUTH_GITHUB_CLIENT_SECRET $BURL/app-config.local.yaml -o app-config.local.yaml
+RUN curl --create-dirs --user $AUTH_GITHUB_CLIENT:$AUTH_GITHUB_CLIENT_SECRET $BURL/packages/backend/src/index.ts -o packages/backend/src/index.ts
+RUN curl --create-dirs --user $AUTH_GITHUB_CLIENT:$AUTH_GITHUB_CLIENT_SECRET $BURL/packages/app/src/App.tsx -o packages/app/src/App.tsx
+RUN curl --create-dirs --user $AUTH_GITHUB_CLIENT:$AUTH_GITHUB_CLIENT_SECRET $BURL/catalog/entities/groups.yaml -o catalog/entities/groups.yaml
+
+# Set backstage yarn start entry point, with local configuration
+ENTRYPOINT ["/usr/local/bin/yarn", "start"]
+CMD -- --config /app/backstage/app-config.local.yaml
+
+LABEL img=backstage description="image for running local backstage" version="0.0.0"
+```
+
+* build image with vars and secrets stored in .env :/ as build-args
+* tag is bckstg:0.0
+* use Dockerfile-bckstg
+
+```bash
+soure .env # got necessary env vars  BCKSTG_CONFIGS_URL AUTH_GITHUB_CLIENT_ID AUTH_GITHUB_CLIENT_SECRET
+docker build -f Dockerfile-bckstg -t bckstg:0.0 --build-arg AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID --build-arg AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET --build-arg BCKSTG_CONFIGS_URL=$BCKSTG_CONFIGS_URL .
+```
+
+* we will need a better system for the secrets 
+* run bckstg:0.0 image as 
+
+```bash
+docker run --rm --name backstage-app -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app bckstg:0.0 bash
 ```
 
 ## Backstage Software Templates
