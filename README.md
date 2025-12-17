@@ -1644,6 +1644,8 @@ ARG BURL=$BURL
 EXPOSE 3000
 EXPOSE 7007
 
+COPY startup.sh .
+
 # Get in backstage directory
 WORKDIR /app/backstage
 
