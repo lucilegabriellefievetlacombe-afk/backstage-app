@@ -1623,7 +1623,7 @@ Creating the app...
 
 ##### Dockerfile for configuration, start and publish backstage  
 
-* The Dockerfile-bckstg
+* The Dockerfile-config and Dockerfile-run
    * use previous image alpine-backstage-build in his from (we could flatten the image before) 
    * use env vars to authenticate and configure the curl url
    * define the needed exposed ports to publish at run
@@ -1633,59 +1633,117 @@ Creating the app...
    * set backstage yarn start has entry point
    * set the default local configuration as cmd
 
-```yaml  Dockerfile-bckstg
+* Dockerfile-config
+
+```yaml  Dockerfile-config
 # we use our backstage building image
 FROM alpine-backstage-build:0.0.2
-# we use arg vars
-ARG AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID
-ARG AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET
-ARG BURL=$BURL
+# we use .env file
+
+SHELL ["/bin/bash", "-c"]
+WORKDIR /app
+COPY .env .
+COPY config.bash .
+
+# Set backstage yarn start entry point, with local configuration
+ENTRYPOINT ["/bin/bash", "./config.bash"]
+
+LABEL img=alpine-backstage-config description="image for running local backstage" version="0.0.0"
+```
+
+* build image with vars and secrets stored in .env 
+* tag is alpine-backstage-conf:0.0.0
+* use Dockerfile-config
+
+```bash
+vim config.bash
+```
+
+```bash config.bash
+#!/bin/bash
+source .env
+BURL=${BCKSTG_CONFIGS_URL}
+
+cd backstage
+# Add auth and techdocs plugins
+yarn --cwd packages/backend add @backstage/plugin-auth-backend-module-github-provider
+yarn --cwd packages/app add @backstage/plugin-techdocs
+yarn --cwd packages/backend add @backstage/plugin-techdocs-backend
+
+# Overwrite configurations
+curl --create-dirs --user $AUTH_GITHUB_CLIENT_ID:$AUTH_GITHUB_CLIENT_SECRET $BURL/catalog/entities/users.yaml -o catalog/entities/users.yaml
+curl --create-dirs --user $AUTH_GITHUB_CLIENT_ID:$AUTH_GITHUB_CLIENT_SECRET $BURL/app-config.local.yaml -o app-config.local.yaml
+curl --create-dirs --user $AUTH_GITHUB_CLIENT_ID:$AUTH_GITHUB_CLIENT_SECRET $BURL/packages/backend/src/index.ts -o packages/backend/src/index.ts
+curl --create-dirs --user $AUTH_GITHUB_CLIENT_ID:$AUTH_GITHUB_CLIENT_SECRET $BURL/packages/app/src/App.tsx -o packages/app/src/App.tsx
+curl --create-dirs --user $AUTH_GITHUB_CLIENT_ID:$AUTH_GITHUB_CLIENT_SECRET $BURL/catalog/entities/groups.yaml -o catalog/entities/groups.yaml
+
+export BURL=''
+export AUTH_GITHUB_CLIENT_ID=''
+export AUTH_GITHUB_CLIENT_SECRET=''
+```
+
+```bash
+docker build -t alpine-backstage-conf:0.0.0. -f Dockerfile-config .
+docker run --rm -it -v `pwd`:/app -w /app alpine-backstage-conf:0.0.0
+```
+
+* Dockerfile-run
+
+```yaml Dockerfile-run
+# we use our backstage building image
+FROM alpine-backstage-build:0.0.2
 # we explain what ports need to be exposed
 EXPOSE 3000
 EXPOSE 7007
 
-COPY startup.sh .
-
-# Get in backstage directory
-WORKDIR /app/backstage
-
-# Add auth and techdocs plugins
-RUN yarn --cwd packages/backend add @backstage/plugin-auth-backend-module-github-provider
-RUN yarn --cwd packages/app add @backstage/plugin-techdocs
-RUN yarn --cwd packages/backend add @backstage/plugin-techdocs-backend
-
-# Overwrite configurations
-RUN curl --create-dirs --user $AUTH_GITHUB_CLIENT:$AUTH_GITHUB_CLIENT_SECRET $BURL/catalog/entities/users.yaml -o catalog/entities/users.yaml
-RUN curl --create-dirs --user $AUTH_GITHUB_CLIENT:$AUTH_GITHUB_CLIENT_SECRET $BURL/app-config.local.yaml -o app-config.local.yaml
-RUN curl --create-dirs --user $AUTH_GITHUB_CLIENT:$AUTH_GITHUB_CLIENT_SECRET $BURL/packages/backend/src/index.ts -o packages/backend/src/index.ts
-RUN curl --create-dirs --user $AUTH_GITHUB_CLIENT:$AUTH_GITHUB_CLIENT_SECRET $BURL/packages/app/src/App.tsx -o packages/app/src/App.tsx
-RUN curl --create-dirs --user $AUTH_GITHUB_CLIENT:$AUTH_GITHUB_CLIENT_SECRET $BURL/catalog/entities/groups.yaml -o catalog/entities/groups.yaml
+WORKDIR /app/backstage/
 
 # Set backstage yarn start entry point, with local configuration
-ENTRYPOINT ["/usr/local/bin/yarn", "start"]
-CMD -- --config /app/backstage/app-config.local.yaml
+ENTRYPOINT /usr/local/bin/yarn start --config /app/backstage/app-config.local.yaml
 
 LABEL img=alpine-backstage-run description="image for running local backstage" version="0.0.0"
 ```
 
-* build image with vars and secrets stored in .env :/ as build-args
-* tag is alpine-backstage-build:0.0.0
-* use Dockerfile-bckstg
+* build as alpine-backstage-run:0.0.0
 
 ```bash
-source .env # got necessary env vars  BCKSTG_CONFIGS_URL AUTH_GITHUB_CLIENT_ID AUTH_GITHUB_CLIENT_SECRET
-```
-
-```bash
-docker build -f Dockerfile-bckstg -t alpine-backstage-run:0.0.0 --build-arg AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID --build-arg AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET --build-arg BCKSTG_CONFIGS_URL=$BCKSTG_CONFIGS_URL .
+docker build -f Dockerfile-run -t alpine-backstage-run:0.0.0 .
 ```
 
 * we will need a better system for the secrets 
-* run ephemeral alpine-backstage-build:0.0.0 image as bckstg-run, with env vars, tty interactivity, plublished ports and mounted volume 
+* run ephemeral alpine-backstage-run:0.0.0 image as bckstg-run, with env vars, tty interactivity, plublished ports and mounted volume 
 
 ```bash
-docker run --rm --name bckstg-run -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app alpine-backstage-run:0.0.0 bash
+docker run --rm --name bckstg-run -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app/backstage alpine-backstage-run:0.0.0
 ```
+
+<details> <summary>results</summary>
+
+```bash result
+stage-run:0.0.0
+Starting app, backend
+Loaded config from app-config.local.yaml
+NOTE: Did not compute git version or commit hash, could not execute the git command line utility
+<i> [webpack-dev-server] Project is running at:
+<i> [webpack-dev-server] Loopback: http://localhost:3000/, http://[::1]:3000/
+<i> [webpack-dev-server] On Your Network (IPv4): http://172.17.0.2:3000/
+<i> [webpack-dev-server] Content not from webpack is served from '/app/backstage/packages/app/public' directory
+<i> [webpack-dev-server] 404s will fallback to '/index.html'
+Rspack compiled successfully
+....
+```
+</details>
+
+* this image is rapid, all sources and configurations are done
+
+```bash
+echo 'docker run --rm --name bckstg-run -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app/backstage alpine-backstage-run:0.0.0' > run_bckstg.bash
+chmod 755 run_bckstg.bash
+echo "alias run-bckstg='`pwd`/run_bckstg.bash"' >> ~/.bashrc
+source  ~/.bashrc
+```
+
+* now we can start backstage with the command line run-bckstg
 
 ## Backstage Software Templates
 
