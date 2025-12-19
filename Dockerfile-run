@@ -1,0 +1,12 @@
+# we use our backstage building image
+FROM alpine-backstage-build:0.0.2
+# we explain what ports need to be exposed
+EXPOSE 3000
+EXPOSE 7007
+
+WORKDIR /app/backstage/
+
+# Set backstage yarn start entry point, with local configuration
+ENTRYPOINT /usr/local/bin/yarn start --config /app/backstage/app-config.local.yaml
+
+LABEL img=alpine-backstage-run description="image for running local backstage" version="0.0.0"

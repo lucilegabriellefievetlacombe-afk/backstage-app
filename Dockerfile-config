@@ -1,0 +1,13 @@
+# we use our backstage building image
+FROM alpine-backstage-build:0.0.2
+# we use .env file
+
+SHELL ["/bin/bash", "-c"]
+WORKDIR /app
+COPY .env .
+COPY config.bash .
+
+# Set backstage yarn start entry point, with local configuration
+ENTRYPOINT ["/bin/bash", "./config.bash"]
+
+LABEL img=alpine-backstage-config description="image for running local backstage" version="0.0.0"

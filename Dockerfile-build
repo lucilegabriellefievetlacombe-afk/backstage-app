@@ -1,0 +1,32 @@
+# Alpine Node for Backstage Image Build 
+FROM node:24-alpine
+
+# Create and use /app
+RUN mkdir -p /app
+WORKDIR /app
+
+# Update npm, intall corepack
+RUN npm install -g npm@latest
+RUN npm uninstall -g yarn pnpm
+RUN npm install -g corepack
+
+# Set yarn version 4.4.1
+RUN npm install yarn
+RUN yarn set version 4.4.1
+RUN apk update && apk add --no-cache vim curl python3 py3-pip make g++ bash github-cli
+# Change the shell
+SHELL ["/bin/bash", "-c"]
+
+# Adding python venv for mkdocs techdocs
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Adding mkdocs-techdoc
+RUN pip3 install mkdocs-techdocs-core
+
+# Set the entrypoint for backstage installation at run
+# will need mount point for /app outside windows
+ENTRYPOINT npx @backstage/create-app@latest
+
+LABEL img=alpine-backstage-build description="image for local backstage build" version="0.0.2"
