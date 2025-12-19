@@ -1677,7 +1677,9 @@ curl --create-dirs --user $AUTH_GITHUB_CLIENT_ID:$AUTH_GITHUB_CLIENT_SECRET $BUR
 curl --create-dirs --user $AUTH_GITHUB_CLIENT_ID:$AUTH_GITHUB_CLIENT_SECRET $BURL/packages/app/src/App.tsx -o packages/app/src/App.tsx
 curl --create-dirs --user $AUTH_GITHUB_CLIENT_ID:$AUTH_GITHUB_CLIENT_SECRET $BURL/catalog/entities/groups.yaml -o catalog/entities/groups.yaml
 
+# Clean secrets and vars
 export BURL=''
+export BCKSTG_CONFIGS_URL=''
 export AUTH_GITHUB_CLIENT_ID=''
 export AUTH_GITHUB_CLIENT_SECRET=''
 ```
@@ -1714,7 +1716,7 @@ docker build -f Dockerfile-run -t alpine-backstage-run:0.0.0 .
 * run ephemeral alpine-backstage-run:0.0.0 image as bckstg-run, with env vars, tty interactivity, plublished ports and mounted volume 
 
 ```bash
-docker run --rm --name bckstg-run -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app/backstage alpine-backstage-run:0.0.0
+docker run --name bckstg-run -it -p 3000:3000 -p 7007:7007 -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -v `pwd`/:/app -w /app/backstage alpine-backstage-run:0.0.0
 ```
 
 <details> <summary>results</summary>
@@ -1737,7 +1739,7 @@ Rspack compiled successfully
 * this image is rapid, all sources and configurations are done
 
 ```bash
-echo 'docker run --rm --name bckstg-run -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app/backstage alpine-backstage-run:0.0.0' > run_bckstg.bash
+echo 'docker run --name bckstg-run -it -p 3000:3000 -p 7007:7007 -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -v `pwd`/:/app -w /app/backstage alpine-backstage-run:0.0.0' > run_bckstg.bash
 chmod 755 run_bckstg.bash
 echo "alias run-bckstg='`pwd`/run_bckstg.bash"' >> ~/.bashrc
 source  ~/.bashrc
