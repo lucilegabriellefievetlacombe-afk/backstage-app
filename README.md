@@ -1475,8 +1475,9 @@ cd backstage; yarn install
 * 🤔 We have inconsistency in packadges dependencies
 * we need a node version > 22 (after research on internet)
 * I use the node 24 alpine, got pb with corepack and found a resolution trick
+* [Dockerfile-build](Dockerfile-build) 
 
-```yaml
+```yaml Dockerfile-build
 # Alpine Node for Backstage Image Build
 FROM node:24-alpine
 
@@ -1525,6 +1526,8 @@ docker rm alpine-bckstg-it  alpine-bckstg-src; docker image rm alpine-backstage-
 docker build -f Dockerfile-build -t alpine-backstage-build:0.0.2 .
 docker run --name alpine-bckstg-src -it -v `pwd`/:/app -w /app alpine-backstage-build:0.0.2 bash
 ```
+
+* or use [build script n°0](0-build-get_bckstg_image-container.bash)
 
 <details> <summary>results</summary>
 
@@ -1633,7 +1636,7 @@ Creating the app...
    * set backstage yarn start has entry point
    * set the default local configuration as cmd
 
-* Dockerfile-config
+*  [Dockerfile-config](Dockerfile-config) 
 
 ```yaml  Dockerfile-config
 # we use our backstage building image
@@ -1651,9 +1654,10 @@ ENTRYPOINT ["/bin/bash", "./config.bash"]
 LABEL img=alpine-backstage-config description="image for running local backstage" version="0.0.0"
 ```
 
-* build image with vars and secrets stored in .env 
+* build image with vars and secrets stored in .env
+   * the base url must point raw datas   
 * tag is alpine-backstage-conf:0.0.0
-* use Dockerfile-config
+* uses [bash config script](config.bash)
 
 ```bash
 vim config.bash
@@ -1684,12 +1688,18 @@ export AUTH_GITHUB_CLIENT_ID=''
 export AUTH_GITHUB_CLIENT_SECRET=''
 ```
 
+* buid config image and run configuration container
+
 ```bash
 docker build -t alpine-backstage-conf:0.0.0. -f Dockerfile-config .
 docker run --rm -it -v `pwd`:/app -w /app alpine-backstage-conf:0.0.0
 ```
 
-* Dockerfile-run
+* or use [config script n°1](1-build-config_bckstg_image-container.bash)
+
+* we can also use first build image, overwite default entrypoint pass env secrets and url and exec config.bash script instead 
+
+* [Dockerfile-run](Dockerfile-run)
 
 ```yaml Dockerfile-run
 # we use our backstage building image
@@ -1719,6 +1729,10 @@ docker build -f Dockerfile-run -t alpine-backstage-run:0.0.0 .
 docker run --name bckstg-run -it -p 3000:3000 -p 7007:7007 -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -v `pwd`/:/app -w /app/backstage alpine-backstage-run:0.0.0
 ```
 
+* or use [config script n°2](2-build-run_bckstg_image-container.bash)
+
+* we can also use first build image, overwite default entrypoint pass env secrets and url and exec backstage yarn start 
+
 <details> <summary>results</summary>
 
 ```bash result
@@ -1737,15 +1751,15 @@ Rspack compiled successfully
 </details>
 
 * this image is rapid, all sources and configurations are done
+* to by pass entrypoint, add --entrypoint '' argument
 
 ```bash
-echo 'docker run --name bckstg-run -it -p 3000:3000 -p 7007:7007 -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -v `pwd`/:/app -w /app/backstage alpine-backstage-run:0.0.0' > run_bckstg.bash
-chmod 755 run_bckstg.bash
-echo "alias run-bckstg='`pwd`/run_bckstg.bash"' >> ~/.bashrc
-source  ~/.bashrc
+docker run --name alpine-bckstg-it -it -v `pwd`/:/app -w /app --entrypoint '' alpine-backstage-base:0.0  'any command'
 ```
 
-* now we can start backstage with the command line run-bckstg
+*in this tutorial, we did not take care of security, .env or any secrets must not be in any mounted directory or volume*
+
+* now we can start backstage reusing the existing container (docker start -a bckstg-run)
 
 ## Backstage Software Templates
 
