@@ -10,4 +10,5 @@ docker build -f Dockerfile-run -t alpine-backstage-run:0.0.0 .
 # publish front at port 3000, back at 7007
 # mount local directory in /app in the container 
 # backstage must have been build previously and +- configured inside this directory
-docker run --name bckstg-run -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app/backstage alpine-backstage-run:0.0.0
+source .env
+docker run --name bckstg-run -it -p 3000:3000 -p 7007:7007 -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -v `pwd`/:/app -w /app/backstage alpine-backstage-run:0.0.0
