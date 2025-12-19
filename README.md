@@ -262,7 +262,7 @@ docker.io/library/node:iron-alpine3.23
 *ps: do **not** go inside a mounted directory shared with **windows***
 
 ```bash
-cd ~ # we are not in shared windows directory
+cd ~/bckstg # we are not in shared windows directory
 docker run --rm -p 3000:3000 -it -v `pwd`:/app -w /app node:iron-alpine3.23 sh
 ```
 
@@ -450,7 +450,7 @@ Creating the app...
 </details>
 
 ```bash
-cd backstage; yarn start
+cd /app/backstage; yarn start
 ```
 
 <details> <summary>results</summary>
@@ -894,10 +894,10 @@ docker commit 7bacffbb16db backstage:v1
 * Restart new backstage image with local configuration only
 
 ```bash
-cd backstage-app
+cd ~/bckstg
 source .env
 docker run --rm -it -e AUTH_GITHUB_CLIENT_ID=$AUTH_GITHUB_CLIENT_ID -e AUTH_GITHUB_CLIENT_SECRET=$AUTH_GITHUB_CLIENT_SECRET -p 3000:3000 -p 7007:7007 -v `pwd`:/app -w /app backstage:v1 bash
-cd backstage
+cd /app/backstage
 yarn start --config `pwd`/app-config.local.yaml
 ```
 
@@ -1042,19 +1042,7 @@ catalog:
 
 <img width="977" height="820" alt="image" src="https://github.com/user-attachments/assets/fe8adcab-c48b-46f9-8896-c1d99c1bec7b" />
 
-
 ### Register external components into the Backstage Catalog
-
-* add
-
-```bash
-```
-
-<details> <summary>results</summary>
-
-```bash result
-```
-</details>
 
 ## Backstage TechDocs
 
@@ -1208,49 +1196,554 @@ TechDocs is Spotify’s homegrown docs-like-code solution built directly into Ba
 * project doc is in the project
 * mkdoc is running in backstage container
 
-* make a dockerfile for backstage
+#### Dockerfiles for backstage local installation (wsl2)
 
-```dockerfile
+*make a dockerfile-build for backstage build and 
+installation, and a dockerfile-start for backstage use.*
+
+##### Dockerfile building backstage base : packadges, librairies, sources and default configurations 
+
+* The dockerfile-buid will :
+   * use an alpine node image
+   * create and use /app directory
+   * upade npm
+   * set yarn 4.4.1 version
+   * install python3, pip, bash, curl, vim or nano, github-ci and others usefull or necessary linux apk packadges
+   * use the shell and python venv
+   * install mkdocs-techdocs-core python lib
+   * set the entrypoint for backstage installation at run
+   * set labels
+
+```bash
+cd ~/bckstg; vim Dockerfile-build
+```
+
+```yaml Dockerfile-build
+# Alpine Node for Backstage Image Build
 FROM node:iron-alpine3.23
-ARG AUTH_GITHUB_CLIENT_ID
-ARG AUTH_GITHUB_CLIENT_SECRET
-ARG SRC
-EXPOSE 3000
-EXPOSE 7007
+
+RUN mkdir -p /app
 WORKDIR /app
 
+# Update npm, intall corepack
 RUN npm install -g npm@latest
 RUN npm install -g corepack
+
+# Set yarn version 4.4.1
 RUN yarn set version 4.4.1
-
 RUN apk update && apk add --no-cache vim curl python3 py3-pip make g++ bash github-cli
+# Change the shell
+SHELL ["/bin/bash", "-c"]
 
+# Adding python venv for mkdocs techdocs installation
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
+# Adding mkdocs-techdoc
 RUN pip3 install mkdocs-techdocs-core
 
-VOLUME $SRC
-RUN if [ ! -d $SRC/backstage ]; then npx @backstage/create-app@latest; fi
+# Set the entrypoint for backstage installation at run
+# will need mount point for /app outside windows
+ENTRYPOINT npx @backstage/create-app@latest
 
-WORKDIR /app/backstage
-RUN yarn --cwd packages/backend add @backstage/plugin-auth-backend-module-github-provider
-; yarn --cwd packages/app add @backstage/plugin-techdocs; yarn --cwd packages/backend add @backstage/plugin-techdocs-backend
-
-COPY app-config.local.yaml app-config.local.yaml
-COPY packages/backend/src/index.ts packages/backend/src/index.ts
-COPY packages/app/src/App.tsx packages/app/src/App.tsx
-RUN mkdir -p catalog/entities/
-COPY catalog/entities/users.yaml catalog/entities/users.yaml
-COPY catalog/entities/groups.yaml catalog/entities/groups.yaml
-
-ENTRYPOINT ["/usr/local/bin/yarn", "yarn start"]
-CMD -- --config `pwd`/app-config.local.yaml
-
-LABEL backstage
+LABEL img=alpine-backstage-build description="image for local backstage build" version="0.0.1"
 ```
 
+* build the build stage image for backstage
+
+```bash 
+cd ~/bckstg; docker build -f Dockerfile-build -t alpine-backstage-build:0.0.1 .
+```
+
+<details> <summary>results</summary>
+
+```bash result
+[+] Building 120.4s (14/14) FINISHED                                             docker:default
+ => [internal] load build definition from Dockerfile-build                                 0.0s
+ => => transferring dockerfile: 875B                                                       0.0s
+ => [internal] load metadata for docker.io/library/node:iron-alpine3.23                    2.4s
+ => [auth] library/node:pull token for registry-1.docker.io                                0.0s
+ => [internal] load .dockerignore                                                          0.0s
+ => => transferring context: 2B                                                            0.0s
+ => [1/9] FROM docker.io/library/node:iron-alpine3.23@sha256:643e7036aa985317ebfee460005e  9.5s
+ => => resolve docker.io/library/node:iron-alpine3.23@sha256:643e7036aa985317ebfee460005e  0.0s
+ => => sha256:6ac8cc1f0b52065d2132d052abc59bf19e19ac0c65729d4300ab41db30fed85 446B / 446B  0.4s
+ => => sha256:34226f5414967f183a8ba2d2a0bf2809b3864182e8f68c07c066fa83f02 1.26MB / 1.26MB  0.9s
+ => => sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a6 42.78MB / 42.78MB  7.7s
+ => => sha256:014e56e613968f73cce0858124ca5fbc601d7888099969a4eea69f31dcd 3.86MB / 3.86MB  3.4s
+ => => extracting sha256:014e56e613968f73cce0858124ca5fbc601d7888099969a4eea69f31dcd71a53  0.2s
+ => => extracting sha256:d28ab52fe4290429b930e8fa368da4da8a7e63cf143c38f9b869950a67c32645  1.5s
+ => => extracting sha256:34226f5414967f183a8ba2d2a0bf2809b3864182e8f68c07c066fa83f025024a  0.1s
+ => => extracting sha256:6ac8cc1f0b52065d2132d052abc59bf19e19ac0c65729d4300ab41db30fed855  0.0s
+ => [2/9] RUN mkdir -p /app                                                                0.5s
+ => [3/9] WORKDIR /app                                                                     0.0s
+ => [4/9] RUN npm install -g npm@latest                                                   10.8s
+ => [5/9] RUN npm install -g corepack                                                      1.7s
+ => [6/9] RUN yarn set version 4.4.1                                                       4.0s
+ => [7/9] RUN apk update && apk add --no-cache vim curl python3 py3-pip make g++ bash gi  29.7s
+ => [8/9] RUN python3 -m venv /opt/venv                                                    4.4s
+ => [9/9] RUN pip3 install mkdocs-techdocs-core                                           26.3s
+ => exporting to image                                                                    30.7s
+ => => exporting layers                                                                   20.5s
+ => => exporting manifest sha256:2e524e00e22b556cb0e34056f1e7c887abe08efad291889f22d715e2  0.0s
+ => => exporting config sha256:2d61302460512897053aa2f61e27f9e66654047cffb093a70ca668af41  0.0s
+ => => exporting attestation manifest sha256:99778ddbd7a07607d3de5aa03eddc3acefe5d666c4c7  0.0s
+ => => exporting manifest list sha256:941f06fbd1d6669aa1aa796fcf3b6cada12c472688e521e4da1  0.0s
+ => => naming to docker.io/library/alpine-backstage-build:0.0.1                             0.0s
+ => => unpacking to docker.io/library/alpine-backstage-build:0.0.1                         10.1s
+```
+
+```bash
+docker images
+```
+
+```bash result
+IMAGE                                           ID             DISK USAGE   CONTENT SIZE   EXTRA
+alpine-backstage-build:0.0.1                    941f06fbd1d6       1.12GB          279MB
+....
+```
+
+</details>
+
+* run the built image with mount point for /app of the container
+   * we are in a directory without windows sharing
+   * in this directory of the backstage sources and configuration will be created by "npx @backstage/create-app@latest" entry point command
+   * we need bash and interactivity
+
+```bash
+docker run --name alpine-bckstg-src -it -v `pwd`/:/app -w /app alpine-backstage-build:0.0 bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+Need to install the following packages:
+@backstage/create-app@0.7.7
+Ok to proceed? (y)
+```
+
+* say : y
+
+
+```bash result
+npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+? Enter a name for the app [required] (backstage)
+```
+
+* say backstage
+
+```bash result
+? Enter a name for the app [required] backstage
+
+Creating the app...
+
+ Checking if the directory is available:
+  checking      backstage ✔
+
+ Creating a temporary app directory:
+
+ Preparing files:
+  copying       .dockerignore ✔
+  copying       .eslintignore ✔
+  templating    .eslintrc.js.hbs ✔
+  templating    .gitignore.hbs ✔
+  copying       .prettierignore ✔
+  templating    .yarnrc.yml.hbs ✔
+  copying       README.md ✔
+  copying       app-config.local.yaml ✔
+  copying       app-config.production.yaml ✔
+  templating    app-config.yaml.hbs ✔
+  templating    backstage.json.hbs ✔
+  templating    catalog-info.yaml.hbs ✔
+  templating    package.json.hbs ✔
+  copying       playwright.config.ts ✔
+  copying       tsconfig.json ✔
+  copying       yarn.lock ✔
+  copying       README.md ✔
+  copying       yarn-4.4.1.cjs ✔
+  copying       entities.yaml ✔
+  copying       org.yaml ✔
+  copying       template.yaml ✔
+  copying       catalog-info.yaml ✔
+  copying       index.js ✔
+  copying       package.json ✔
+  copying       README.md ✔
+  templating    .eslintrc.js.hbs ✔
+  copying       Dockerfile ✔
+  copying       README.md ✔
+  templating    package.json.hbs ✔
+  copying       index.ts ✔
+  copying       .eslintignore ✔
+  templating    .eslintrc.js.hbs ✔
+  templating    package.json.hbs ✔
+  copying       app.test.ts ✔
+  copying       android-chrome-192x192.png ✔
+  copying       apple-touch-icon.png ✔
+  copying       favicon-16x16.png ✔
+  copying       favicon-32x32.png ✔
+  copying       favicon.ico ✔
+  copying       index.html ✔
+  copying       manifest.json ✔
+  copying       robots.txt ✔
+  copying       safari-pinned-tab.svg ✔
+  copying       App.test.tsx ✔
+  copying       App.tsx ✔
+  copying       apis.ts ✔
+  copying       index.tsx ✔
+  copying       setupTests.ts ✔
+  copying       LogoFull.tsx ✔
+  copying       LogoIcon.tsx ✔
+  copying       Root.tsx ✔
+  copying       index.ts ✔
+  copying       EntityPage.tsx ✔
+  copying       SearchPage.tsx ✔
+
+ Moving to final location:
+  moving        backstage ✔
+  fetching      yarn.lock seed ✔
+
+ Installing dependencies:
+  executing     yarn install ◜
+```
+
+*it is very very long*
+
+```bash result
+  executing     yarn install ◡ ➤ YN0000: · Yarn 4.4.1
+➤ YN0000: ┌ Resolution step
+➤ YN0085: │ + @backstage/app-defaults@npm:1.7.3, @backstage/backend-defaults@npm:0.14.0, @backstage/catalog-model@npm:1.7.6, @backstage/cli@npm:0.35.0, and 2916 more.
+➤ YN0000: └ Completed in 1m 18s
+➤ YN0000: ┌ Post-resolution validation
+➤ YN0060: │ @testing-library/react is listed by your project with version 14.3.1 (pc9eb9), which doesn't satisfy what @backstage/test-utils requests (^16.0.0).
+➤ YN0060: │ react is listed by your project with version 18.3.1 (pd98da), which doesn't satisfy what @material-ui/core and other dependencies request (but they have non-overlapping ranges!).
+➤ YN0060: │ react-dom is listed by your project with version 18.3.1 (pfa800), which doesn't satisfy what @material-ui/core and other dependencies request (but they have non-overlapping ranges!).
+➤ YN0002: │ app@workspace:packages/app doesn't provide @types/react (pceee1), requested by @backstage/app-defaults and other dependencies.
+➤ YN0002: │ app@workspace:packages/app doesn't provide jest (p99cdc), requested by @backstage/cli.
+➤ YN0002: │ app@workspace:packages/app doesn't provide webpack (p299d9), requested by @backstage/cli.
+➤ YN0002: │ backend@workspace:packages/backend doesn't provide jest (p35ee3), requested by @backstage/cli.
+➤ YN0002: │ backend@workspace:packages/backend doesn't provide webpack (p00f29), requested by @backstage/cli.
+➤ YN0002: │ root@workspace:. doesn't provide webpack (p40c38), requested by @backstage/cli.
+➤ YN0086: │ Some peer dependencies are incorrectly met by your project; run yarn explain peer-requirements <hash> for details, where <hash> is the six-letter p-prefixed code.
+➤ YN0086: │ Some peer dependencies are incorrectly met by dependencies; run yarn explain peer-requirements for details.
+➤ YN0000: └ Completed
+➤ YN0000: ┌ Fetch step
+➤ YN0066: │ typescript@patch:typescript@npm%3A5.8.3#optional!builtin<compat/typescript>::version=5.8.3&hash=8c6c40: Cannot apply hunk #1
+➤ YN0013: │ 2835 packages were added to the project (+ 1.04 GiB).
+➤ YN0000: └ Completed in 52s 488ms
+➤ YN0000: ┌ Link step
+➤ YN0007: │ esbuild@npm:0.27.2 must be built because it never has been before or the last one failed
+➤ YN0007: │ @swc/core@npm:1.11.31 [de5a4] must be built because it never has been before or the last one failed
+➤ YN0007: │ core-js@npm:3.47.0 must be built because it never has been before or the last one failed
+➤ YN0007: │ better-sqlite3@npm:12.5.0 must be built because it never has been before or the last one failed
+➤ YN0007: │ isolated-vm@npm:6.0.2 must be built because it never has been before or the last one failed
+➤ YN0007: │ unrs-resolver@npm:1.11.1 must be built because it never has been before or the last one failed
+➤ YN0007: │ @scarf/scarf@npm:1.4.0 must be built because it never has been before or the last one failed
+➤ YN0007: │ protobufjs@npm:7.5.4 must be built because it never has been before or the last one failed
+➤ YN0007: │ core-js-pure@npm:3.47.0 must be built because it never has been before or the last one failed
+➤ YN0007: │ tree-sitter@npm:0.22.4 must be built because it never has been before or the last one failed
+➤ YN0007: │ tree-sitter@npm:0.21.1 must be built because it never has been before or the last one failed
+➤ YN0007: │ core-js@npm:2.6.12 must be built because it never has been before or the last one failed
+➤ YN0007: │ cpu-features@npm:0.0.10 must be built because it never has been before or the last one failed
+➤ YN0009: │ isolated-vm@npm:6.0.2 couldn't be built successfully (exit code 1, logs can be found here: /tmp/xfs-4f46c3f0/build.log)
+➤ YN0007: │ @tree-sitter-grammars/tree-sitter-yaml@npm:0.7.1 [63720] must be built because it never has been before or the last one failed
+➤ YN0007: │ ssh2@npm:1.17.0 must be built because it never has been before or the last one failed
+➤ YN0007: │ tree-sitter-json@npm:0.24.8 [0ca9a] must be built because it never has been before or the last one failed
+➤ YN0000: └ Completed in 1m 24s
+➤ YN0000: · Failed with errors in 3m 35s
+  executing     yarn install ✖
+
+Error: Could not execute command yarn install
+
+It seems that something went wrong when creating the app 🤔
+
+🔥  Failed to create app!
+```
+
+</details>
+
+* We need to finish the installation inside the container 
+
+```bash
+docker run --name alpine-bckstg-it -it -v `pwd`/:/app -w /app --entrypoint '' alpine-backstage-base:0.0.0 bash
+```
+
+```bash inside the container alpine-bckstg-it
+cd backstage; yarn install
+```
+
+* 🤔 We have inconsistency in packadges dependencies
+* we need a node version > 22 (after research on internet)
+* I use the node 24 alpine, got pb with corepack and found a resolution trick
+
+```yaml
+# Alpine Node for Backstage Image Build
+FROM node:24-alpine
+
+# Create and use /app
+RUN mkdir -p /app
+WORKDIR /app
+
+# Update npm, intall corepack
+RUN npm install -g npm@latest
+RUN npm uninstall -g yarn pnpm
+RUN npm install -g corepack
+
+# Set yarn version 4.4.1
+RUN npm install yarn
+RUN yarn set version 4.4.1
+RUN apk update && apk add --no-cache vim curl python3 py3-pip make g++ bash github-cli
+# Change the shell
+SHELL ["/bin/bash", "-c"]
+
+# Adding python venv for mkdocs techdocs
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Adding mkdocs-techdoc
+RUN pip3 install mkdocs-techdocs-core
+
+# Set the entrypoint for backstage installation at run
+# will need mount point for /app outside windows
+ENTRYPOINT npx @backstage/create-app@latest
+
+LABEL img=alpine-backstage-build description="image for local backstage build" version="0.0.2"
+```
+
+* I clean old stuff
+
+```bash
+cd ~/backstage-app; rm -rf backstage
+docker rm alpine-bckstg-it  alpine-bckstg-src; docker image rm alpine-backstage-build:0.0.1
+```
+
+* I build again
+* I run interactive (it) alpine-bckstg-src alpine npde 24 container, with local mount and bash 
+
+```bash
+docker build -f Dockerfile-build -t alpine-backstage-build:0.0.2 .
+docker run --name alpine-bckstg-src -it -v `pwd`/:/app -w /app alpine-backstage-build:0.0.2 bash
+```
+
+<details> <summary>results</summary>
+
+```bash result
+Need to install the following packages:
+@backstage/create-app@0.7.7
+Ok to proceed? (y) y
+npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+? Enter a name for the app [required] backstage
+
+Creating the app...
+
+ Checking if the directory is available:
+  checking      backstage ✔
+
+ Creating a temporary app directory:
+
+ Preparing files:
+  copying       .dockerignore ✔
+  copying       .eslintignore ✔
+  templating    .eslintrc.js.hbs ✔
+  templating    .gitignore.hbs ✔
+  copying       .prettierignore ✔
+  templating    .yarnrc.yml.hbs ✔
+  copying       README.md ✔
+  copying       app-config.local.yaml ✔
+  copying       app-config.production.yaml ✔
+  templating    app-config.yaml.hbs ✔
+  templating    backstage.json.hbs ✔
+  templating    catalog-info.yaml.hbs ✔
+  templating    package.json.hbs ✔
+  copying       playwright.config.ts ✔
+  copying       tsconfig.json ✔
+  copying       yarn.lock ✔
+  copying       README.md ✔
+  copying       yarn-4.4.1.cjs ✔
+  copying       entities.yaml ✔
+  copying       org.yaml ✔
+  copying       template.yaml ✔
+  copying       catalog-info.yaml ✔
+  copying       index.js ✔
+  copying       package.json ✔
+  copying       README.md ✔
+  templating    .eslintrc.js.hbs ✔
+  copying       Dockerfile ✔
+  copying       README.md ✔
+  templating    package.json.hbs ✔
+  copying       index.ts ✔
+  copying       .eslintignore ✔
+  templating    .eslintrc.js.hbs ✔
+  templating    package.json.hbs ✔
+  copying       android-chrome-192x192.png ✔
+  copying       apple-touch-icon.png ✔
+  copying       favicon-16x16.png ✔
+  copying       favicon-32x32.png ✔
+  copying       favicon.ico ✔
+  copying       index.html ✔
+  copying       manifest.json ✔
+  copying       robots.txt ✔
+  copying       safari-pinned-tab.svg ✔
+  copying       app.test.ts ✔
+  copying       App.test.tsx ✔
+  copying       App.tsx ✔
+  copying       apis.ts ✔
+  copying       index.tsx ✔
+  copying       setupTests.ts ✔
+  copying       LogoFull.tsx ✔
+  copying       LogoIcon.tsx ✔
+  copying       Root.tsx ✔
+  copying       index.ts ✔
+  copying       EntityPage.tsx ✔
+  copying       SearchPage.tsx ✔
+
+ Moving to final location:
+  moving        backstage ✔
+  fetching      yarn.lock seed ✔
+
+ Installing dependencies:
+  executing     yarn install ✔
+  executing     yarn tsc ✔
+
+🥇  Successfully created backstage
+
+
+ All set! Now you might want to:
+  Run the app: cd backstage && yarn start
+  Set up the software catalog: https://backstage.io/docs/features/software-catalog/configuration
+  Add authentication: https://backstage.io/docs/auth/
+```
+
+* the backstage directory is created inside the container in /app/backstage
+* it is also created inside the host in ~/backstage-app/backstage (where we mounted the volume)
+* in this directory we have all the code and the default configuration  
+
+</details>
+
+##### Dockerfile for configuration, start and publish backstage  
+
+* The Dockerfile-config and Dockerfile-run
+   * use previous image alpine-backstage-build in his from (we could flatten the image before) 
+   * use env vars to authenticate and configure the curl url
+   * define the needed exposed ports to publish at run
+   * use mounted backstage sources and default configurations
+   * add plugins for auth and tech docs  
+   * overwrites the needed configurations using curl (we pushed our configuration on a remote git repository)
+   * set backstage yarn start has entry point
+   * set the default local configuration as cmd
+
+* Dockerfile-config
+
+```yaml  Dockerfile-config
+# we use our backstage building image
+FROM alpine-backstage-build:0.0.2
+# we use .env file
+
+SHELL ["/bin/bash", "-c"]
+WORKDIR /app
+COPY .env .
+COPY config.bash .
+
+# Set backstage yarn start entry point, with local configuration
+ENTRYPOINT ["/bin/bash", "./config.bash"]
+
+LABEL img=alpine-backstage-config description="image for running local backstage" version="0.0.0"
+```
+
+* build image with vars and secrets stored in .env 
+* tag is alpine-backstage-conf:0.0.0
+* use Dockerfile-config
+
+```bash
+vim config.bash
+```
+
+```bash config.bash
+#!/bin/bash
+source .env
+BURL=${BCKSTG_CONFIGS_URL}
+
+cd backstage
+# Add auth and techdocs plugins
+yarn --cwd packages/backend add @backstage/plugin-auth-backend-module-github-provider
+yarn --cwd packages/app add @backstage/plugin-techdocs
+yarn --cwd packages/backend add @backstage/plugin-techdocs-backend
+
+# Overwrite configurations
+curl --create-dirs --user $AUTH_GITHUB_CLIENT_ID:$AUTH_GITHUB_CLIENT_SECRET $BURL/catalog/entities/users.yaml -o catalog/entities/users.yaml
+curl --create-dirs --user $AUTH_GITHUB_CLIENT_ID:$AUTH_GITHUB_CLIENT_SECRET $BURL/app-config.local.yaml -o app-config.local.yaml
+curl --create-dirs --user $AUTH_GITHUB_CLIENT_ID:$AUTH_GITHUB_CLIENT_SECRET $BURL/packages/backend/src/index.ts -o packages/backend/src/index.ts
+curl --create-dirs --user $AUTH_GITHUB_CLIENT_ID:$AUTH_GITHUB_CLIENT_SECRET $BURL/packages/app/src/App.tsx -o packages/app/src/App.tsx
+curl --create-dirs --user $AUTH_GITHUB_CLIENT_ID:$AUTH_GITHUB_CLIENT_SECRET $BURL/catalog/entities/groups.yaml -o catalog/entities/groups.yaml
+
+export BURL=''
+export AUTH_GITHUB_CLIENT_ID=''
+export AUTH_GITHUB_CLIENT_SECRET=''
+```
+
+```bash
+docker build -t alpine-backstage-conf:0.0.0. -f Dockerfile-config .
+docker run --rm -it -v `pwd`:/app -w /app alpine-backstage-conf:0.0.0
+```
+
+* Dockerfile-run
+
+```yaml Dockerfile-run
+# we use our backstage building image
+FROM alpine-backstage-build:0.0.2
+# we explain what ports need to be exposed
+EXPOSE 3000
+EXPOSE 7007
+
+WORKDIR /app/backstage/
+
+# Set backstage yarn start entry point, with local configuration
+ENTRYPOINT /usr/local/bin/yarn start --config /app/backstage/app-config.local.yaml
+
+LABEL img=alpine-backstage-run description="image for running local backstage" version="0.0.0"
+```
+
+* build as alpine-backstage-run:0.0.0
+
+```bash
+docker build -f Dockerfile-run -t alpine-backstage-run:0.0.0 .
+```
+
+* we will need a better system for the secrets 
+* run ephemeral alpine-backstage-run:0.0.0 image as bckstg-run, with env vars, tty interactivity, plublished ports and mounted volume 
+
+```bash
+docker run --rm --name bckstg-run -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app/backstage alpine-backstage-run:0.0.0
+```
+
+<details> <summary>results</summary>
+
+```bash result
+stage-run:0.0.0
+Starting app, backend
+Loaded config from app-config.local.yaml
+NOTE: Did not compute git version or commit hash, could not execute the git command line utility
+<i> [webpack-dev-server] Project is running at:
+<i> [webpack-dev-server] Loopback: http://localhost:3000/, http://[::1]:3000/
+<i> [webpack-dev-server] On Your Network (IPv4): http://172.17.0.2:3000/
+<i> [webpack-dev-server] Content not from webpack is served from '/app/backstage/packages/app/public' directory
+<i> [webpack-dev-server] 404s will fallback to '/index.html'
+Rspack compiled successfully
+....
+```
+</details>
+
+* this image is rapid, all sources and configurations are done
+
+```bash
+echo 'docker run --rm --name bckstg-run -it -p 3000:3000 -p 7007:7007 -v `pwd`/:/app -w /app/backstage alpine-backstage-run:0.0.0' > run_bckstg.bash
+chmod 755 run_bckstg.bash
+echo "alias run-bckstg='`pwd`/run_bckstg.bash"' >> ~/.bashrc
+source  ~/.bashrc
+```
+
+* now we can start backstage with the command line run-bckstg
 
 ## Backstage Software Templates
 
