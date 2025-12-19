@@ -74,6 +74,22 @@ const app = createApp({
   },
 });
 
+const AppRoutes = () => {
+  <FlatRoutes>
+    <Route path="/docs" element={<TechDocsIndexPage />}>
+      <DefaultTechDocsHome />
+    </Route>
+    <Route
+      path="/docs/:namespace/:kind/:name/*"
+      element={<TechDocsReaderPage />}
+    >
+      <TechDocsAddons>
+        <ReportIssue />
+      </TechDocsAddons>
+    </Route>
+  </FlatRoutes>;
+};
+
 const routes = (
   <FlatRoutes>
     <Route path="/" element={<Navigate to="catalog" />} />
