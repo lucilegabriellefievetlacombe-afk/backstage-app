@@ -64,6 +64,8 @@ techdocs:
     runIn: 'local' # 'docker' # Alternatives - 'local'
   publisher:
     type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+  cache:
+    ttl: 3600000
 
 scaffolder:
   # see https://backstage.io/docs/features/software-templates/configuration for software template options
