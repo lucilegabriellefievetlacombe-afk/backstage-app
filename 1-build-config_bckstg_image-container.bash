@@ -4,7 +4,7 @@ if [ -f .env ]; then
 	if [ -d backstage ]; then
 
 		# Build alpine-backstage-conf:0.0.0 image
-		docker build -t alpine-backstage-conf:0.0.0. -f Dockerfile-config .
+		docker build -t alpine-backstage-conf:0.0.0 -f Dockerfile-config .
 
 		# Run configuration container
 		# must be in the directory where the backstage source directory have been created
