@@ -1763,9 +1763,28 @@ docker run --name alpine-bckstg-it -it -v `pwd`/:/app -w /app --entrypoint '' al
 
 ## Backstage Software Templates
 
-* add
+* [install action module](https://backstage.io/docs/features/software-templates/builtin-actions#installing-action-modules)
 
 ```bash
+vim config.bash
+```
+
+* add yarn backend scaffolder plugin  
+
+```bash config.bash
+yarn --cwd packages/backend add @backstage/plugin-scaffolder-backend-module-github
+```
+
+```bash
+vim /packages/backend/src/index.ts
+```
+
+* add scaffolder import in backend index
+
+```ts
+// scaffolder plugin
+backend.add(import('@backstage/plugin-scaffolder-backend'));
+backend.add(import('@backstage/plugin-scaffolder-backend-module-github'));
 ```
 
 <details> <summary>results</summary>
