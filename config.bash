@@ -4,9 +4,13 @@ BURL=${BCKSTG_CONFIGS_URL}
 
 cd backstage
 # Add auth and techdocs plugins
+# OAuth
 yarn --cwd packages/backend add @backstage/plugin-auth-backend-module-github-provider
+# TechDocs back & front
 yarn --cwd packages/app add @backstage/plugin-techdocs
 yarn --cwd packages/backend add @backstage/plugin-techdocs-backend
+# Templates
+yarn --cwd packages/backend add @backstage/plugin-scaffolder-backend-module-github
 
 # Overwrite configurations
 curl --create-dirs --user $AUTH_GITHUB_CLIENT_ID:$AUTH_GITHUB_CLIENT_SECRET $BURL/catalog/entities/groups.yaml -o catalog/entities/groups.yaml

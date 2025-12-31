@@ -6,6 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
+.env-github-rawdatd
+.pnp.cjs
+.pnp.loader.mjs
+.yarn/
+
 # Distribution / packaging
 .Python
 build/

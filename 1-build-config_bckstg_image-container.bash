@@ -2,7 +2,8 @@
 
 if [ -f .env ]; then 
 	if [ -d backstage ]; then
-
+                # clean old image
+		docker image rm alpine-backstage-conf:0.0.0
 		# Build alpine-backstage-conf:0.0.0 image
 		docker build -t alpine-backstage-conf:0.0.0 -f Dockerfile-config .
 
