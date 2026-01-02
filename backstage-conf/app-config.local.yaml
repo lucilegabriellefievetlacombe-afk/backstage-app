@@ -97,7 +97,7 @@ catalog:
       rules:
         - allow: [User]
     # Local example template
-    - type: file
+    - type: url
       target: https://github.com/lucilegabriellefievetlacombe-afk/backstage-software-templates/blob/main/python-flask-app/template.yaml
       rules:
         - allow: [Template]
