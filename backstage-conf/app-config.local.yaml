@@ -96,16 +96,14 @@ catalog:
       target: /app/backstage/catalog/entities/users.yaml
       rules:
         - allow: [User]
-
+    # Local example template
+    - type: file
+      target: https://github.com/lucilegabriellefievetlacombe-afk/backstage-software-templates/blob/main/python-flask-app/template.yaml
+      rules:
+        - allow: [Template]
     # Local example data, file locations are relative to the backend process, typically `packages/backend`
     - type: file
       target: ../../examples/entities.yaml
-
-    # Local example template
-    - type: file
-      target: ../../examples/template/template.yaml
-      rules:
-        - allow: [Template]
 
     # Local example organizational data
     - type: file
