@@ -101,6 +101,38 @@ catalog:
       target: https://github.com/lucilegabriellefievetlacombe-afk/backstage-software-templates/blob/main/python-flask-app/template.yaml
       rules:
         - allow: [Template]
+    - type: url
+      target: https://github.com/lucilegabriellefievetlacombe-afk/backstage-software-templates/blob/main/go-gin-app/template.yaml
+      rules:
+        - allow: [Template]
+    - type: url
+      target: https://github.com/lucilegabriellefievetlacombe-afk/backstage-software-templates/blob/main/java-blade-app/template.yaml
+      rules:
+        - allow: [Template]
+    - type: url
+      target: https://github.com/lucilegabriellefievetlacombe-afk/backstage-software-templates/blob/main/java-dropwizard-app/template.yaml
+      rules:
+        - allow: [Template]
+    - type: url
+      target: https://github.com/lucilegabriellefievetlacombe-afk/backstage-software-templates/blob/main/java-grails-app/template.yaml
+      rules:
+        - allow: [Template]
+    - type: url
+      target: https://github.com/lucilegabriellefievetlacombe-afk/backstage-software-templates/blob/main/java-hibernate-app/template.yaml
+      rules:
+        - allow: [Template]
+    - type: url
+      target: https://github.com/lucilegabriellefievetlacombe-afk/backstage-software-templates/blob/main/java-spring-app/template.yaml
+      rules:
+        - allow: [Template]
+    - type: url
+      target: https://github.com/lucilegabriellefievetlacombe-afk/backstage-software-templates/blob/main/java-strust-app/template.yaml
+      rules:
+        - allow: [Template]
+    - type: url
+      target: https://github.com/lucilegabriellefievetlacombe-afk/backstage-software-templates/blob/main/java-vaadin-app/template.yaml
+      rules:
+        - allow: [Template]
     # Local example data, file locations are relative to the backend process, typically `packages/backend`
     - type: file
       target: ../../examples/entities.yaml
